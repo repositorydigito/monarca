@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('JC&R')
+            ->brandName('Dígito')
             ->brandLogo(asset('images/logo.png'))
             ->colors([
                 'primary' => Color::Indigo,

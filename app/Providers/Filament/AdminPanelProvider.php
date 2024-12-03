@@ -29,7 +29,8 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName('DÍGITO')
-            ->brandLogo(asset('images/logo.png'))
+            ->brandLogo(asset('images/black.png'))
+            ->darkModeBrandLogo(asset('images/white.png')) // Logo para modo oscuro
             ->colors([
                 'primary' => Color::Indigo,
             ])
@@ -41,7 +42,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class
-
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -54,7 +54,6 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-
             ->authMiddleware([
                 Authenticate::class,
             ])

@@ -10,94 +10,117 @@ use Filament\Forms;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Filament\Tables\Enums\FiltersLayout;
-use Illuminate\Support\Facades\Log;
 
 class TimeEntryReportResource extends Resource
 {
     protected static ?string $model = TimeEntryReport::class;
     protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-bar';
     protected static ?string $navigationGroup = 'Reportes';
-    protected static ?string $navigationLabel = 'Reporte de Horas';
-    protected static ?string $modelLabel = 'reporte de horas';
-    protected static ?string $pluralModelLabel = 'reportes de horas';
-    protected static ?string $slug = 'reportes-horas';
-
-
+    protected static ?string $navigationLabel = 'Reporte Gerencial de Horas';
+    protected static ?string $modelLabel = 'reporte gerencial de horas';
+    protected static ?string $pluralModelLabel = 'reportes gerenciales de horas';
+    protected static ?string $slug = 'reportes-gerenciales';
 
     public static function table(Table $table): Table
     {
+        $baseQuery = TimeEntryReport::query()
+            ->join('users', 'users.id', '=', 'time_entries.user_id')
+            ->join('projects', 'projects.id', '=', 'time_entries.project_id');
+
+        // Project grouping query with nested resources
+        $projectQuery = clone $baseQuery;
+        $projectQuery->select([
+            'projects.id',
+            'projects.name as project_name',
+            'projects.code as project_code',
+            'users.id as user_id',
+            'users.name as user_name',
+            DB::raw('SUM(time_entries.hours) as total_hours'),
+            DB::raw('COUNT(DISTINCT DATE(time_entries.date)) as total_days'),
+            DB::raw('SUM(time_entries.hours) / COUNT(DISTINCT DATE(time_entries.date)) as average_hours_per_day'),
+            DB::raw('MIN(time_entries.date) as start_date'),
+            DB::raw('MAX(time_entries.date) as end_date'),
+            DB::raw('CONCAT(projects.name, " (", projects.code, ")") as project_display_name'),
+            DB::raw('NULL as parent_summary')
+        ])
+            ->groupBy('projects.id', 'projects.name', 'projects.code', 'users.id', 'users.name')
+            ->orderBy('projects.name')
+            ->orderBy('users.name');
+
+        // Resource grouping query with nested projects
+        $resourceQuery = clone $baseQuery;
+        $resourceQuery->select([
+            'users.id',
+            'users.name as user_name',
+            'projects.id as project_id',
+            'projects.name as project_name',
+            'projects.code as project_code',
+            DB::raw('SUM(time_entries.hours) as total_hours'),
+            DB::raw('COUNT(DISTINCT DATE(time_entries.date)) as total_days'),
+            DB::raw('SUM(time_entries.hours) / COUNT(DISTINCT DATE(time_entries.date)) as average_hours_per_day'),
+            DB::raw('MIN(time_entries.date) as start_date'),
+            DB::raw('MAX(time_entries.date) as end_date'),
+            DB::raw('CONCAT(projects.name, " (", projects.code, ")") as project_display_name'),
+            DB::raw('NULL as parent_summary')
+        ])
+            ->groupBy('users.id', 'users.name', 'projects.id', 'projects.name', 'projects.code')
+            ->orderBy('users.name')
+            ->orderBy('projects.name');
+
         return $table
-            ->query(
-                TimeEntryReport::query()
-                    ->select([
-                        DB::raw('MIN(time_entries.id) as id'),
-                        'users.name as user_name',
-                        'projects.name as project_name',
-                        'projects.code as project_code',
-                        'time_entries.phase',
-                        DB::raw('SUM(time_entries.hours) as total_hours'),
-                        DB::raw('COUNT(DISTINCT DATE(time_entries.date)) as total_days'),
-                        DB::raw('MIN(time_entries.date) as start_date'),
-                        DB::raw('MAX(time_entries.date) as end_date')
-                    ])
-                    ->join('users', 'users.id', '=', 'time_entries.user_id')
-                    ->join('projects', 'projects.id', '=', 'time_entries.project_id')
-                    ->groupBy('users.name', 'projects.name', 'projects.code', 'time_entries.phase')
-                    ->orderBy('users.name')
-                    ->orderBy('projects.name')
-                    ->orderBy('time_entries.phase')
-            )
+            ->query(function () use ($projectQuery, $resourceQuery, $table) {
+                return $table->getGrouping()?->getId() === 'project_name' ? $projectQuery : $resourceQuery;
+            })
             ->columns([
-                Tables\Columns\TextColumn::make('user_name')
-                    ->label('Usuario')
-                    ->sortable()
-                    ->searchable()
-                    ->icon('heroicon-o-user')
-                    ->toggleable()
-                    ->extraAttributes(['class' => 'text-primary-600']),
-
+                // Project/Resource Name Column
                 Tables\Columns\TextColumn::make('project_name')
-                    ->label('Proyecto')
+                    ->label(fn(Table $table) => $table->getGrouping()?->getId() === 'project_name' ? 'Proyecto' : 'Recurso')
+                    ->formatStateUsing(function ($state, $record, Table $table) {
+                        if ($table->getGrouping()?->getId() === 'project_name') {
+                            return $record->project_display_name;
+                        }
+                        return $record->user_name;
+                    })
+                    ->description(function ($record, Table $table) {
+                        if ($table->getGrouping()?->getId() === 'project_name') {
+                            return $record->user_name;
+                        }
+                        return $record->project_display_name;
+                    })
                     ->sortable()
                     ->searchable()
-                    ->icon('heroicon-o-briefcase')
-                    ->toggleable()
-                    ->description(fn($record): string => $record->project_code),
+                    ->icon(fn(Table $table) => $table->getGrouping()?->getId() === 'project_name' ? 'heroicon-o-briefcase' : 'heroicon-o-user')
+                    ->weight('bold'),
 
-                Tables\Columns\TextColumn::make('phase')
-                    ->label('Fase')
-                    ->formatStateUsing(fn($state) => TimeEntryReport::PHASES[$state] ?? $state)
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'inicio' => 'info',
-                        'planificacion' => 'warning',
-                        'ejecucion' => 'success',
-                        'control' => 'danger',
-                        'cierre' => 'gray',
-                        default => 'primary',
-                    })
-                    ->icon('heroicon-o-flag')
-                    ->toggleable()
-                    ->sortable(),
-
+                // Metrics Columns
                 Tables\Columns\TextColumn::make('total_hours')
                     ->label('Total Horas')
                     ->numeric(2)
                     ->sortable()
-                    ->toggleable()
                     ->icon('heroicon-o-clock')
+                    ->color('success')
+                    ->alignEnd()
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
                             ->label('Total')
                             ->formatStateUsing(fn($state) => number_format($state, 2) . ' hrs')
                     ]),
 
+                Tables\Columns\TextColumn::make('average_hours_per_day')
+                    ->label('Promedio Hrs/Día')
+                    ->numeric(2)
+                    ->sortable()
+                    ->formatStateUsing(fn($state) => number_format($state, 2) . ' hrs')
+                    ->icon('heroicon-o-chart-bar')
+                    ->color('warning')
+                    ->alignEnd(),
+
                 Tables\Columns\TextColumn::make('total_days')
                     ->label('Días Trabajados')
                     ->numeric(0)
                     ->sortable()
-                    ->toggleable()
                     ->icon('heroicon-o-calendar-days')
+                    ->alignEnd()
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
                             ->label('Total Días')
@@ -107,39 +130,31 @@ class TimeEntryReportResource extends Resource
                     ->label('Fecha Inicio')
                     ->date('d/m/Y')
                     ->sortable()
+                    ->icon('heroicon-o-calendar')
                     ->toggleable()
-                    ->toggledHiddenByDefault()
-                    ->icon('heroicon-o-calendar'),
+                    ->toggledHiddenByDefault(),
 
                 Tables\Columns\TextColumn::make('end_date')
                     ->label('Fecha Fin')
                     ->date('d/m/Y')
                     ->sortable()
+                    ->icon('heroicon-o-calendar')
                     ->toggleable()
-                    ->toggledHiddenByDefault()
-                    ->icon('heroicon-o-calendar'),
+                    ->toggledHiddenByDefault(),
             ])
             ->groups([
                 Tables\Grouping\Group::make('project_name')
-                    ->label('Proyecto')
-                    ->collapsible(),
+                    ->label('Por Proyecto')
+                    ->collapsible()
+                    ->titlePrefixedWithLabel(false),
                 Tables\Grouping\Group::make('user_name')
-                    ->label('Usuario')
-                    ->collapsible(),
-                Tables\Grouping\Group::make('phase')
-                    ->label('Fase')
-                    ->collapsible(),
+                    ->label('Por Recurso')
+                    ->collapsible()
+                    ->titlePrefixedWithLabel(false)
             ])
             ->defaultGroup('project_name')
             ->filters([
-                Tables\Filters\SelectFilter::make('phase')
-                    ->label('Fase')
-                    ->options(TimeEntryReport::PHASES)
-                    ->multiple()
-                    ->indicator('Fases'),
-
                 Tables\Filters\Filter::make('date_range')
-                    ->label('Rango de Fechas')
                     ->form([
                         Forms\Components\DatePicker::make('from')
                             ->label('Desde')
@@ -151,15 +166,15 @@ class TimeEntryReportResource extends Resource
                             ->native(false),
                     ])
                     ->indicateUsing(function (array $data): ?string {
-                        if (! $data['from'] && ! $data['until']) {
+                        if (!$data['from'] && !$data['until']) {
                             return null;
                         }
 
-                        if (! $data['until']) {
+                        if (!$data['until']) {
                             return 'Desde ' . \Carbon\Carbon::parse($data['from'])->format('d/m/Y');
                         }
 
-                        if (! $data['from']) {
+                        if (!$data['from']) {
                             return 'Hasta ' . \Carbon\Carbon::parse($data['until'])->format('d/m/Y');
                         }
 
@@ -175,7 +190,7 @@ class TimeEntryReportResource extends Resource
                         );
                     })
             ])
-            ->filtersFormColumns(3)
+            ->filtersFormColumns(2)
             ->filtersTriggerAction(
                 fn(Tables\Actions\Action $action) => $action
                     ->button()

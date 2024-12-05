@@ -8,7 +8,8 @@
                         <x-heroicon-o-chevron-left class="w-5 h-5" />
                     </button>
 
-                    <h2 class="text-xl font-medium">
+                    <h2 class="text-xl font-medium flex items-center">
+                        <x-heroicon-o-calendar class="w-5 h-5 mr-2 text-primary-500" />
                         {{ Carbon\Carbon::parse($currentDate)->format('F Y') }}
                     </h2>
 
@@ -16,8 +17,6 @@
                         <x-heroicon-o-chevron-right class="w-5 h-5" />
                     </button>
                 </div>
-
-
             </div>
 
             {{-- Tabla de timesheet --}}
@@ -25,9 +24,12 @@
                 <table class="timesheet-table">
                     <thead>
                         <tr>
-                            <th>Proyecto</th>
+                            <th class="text-left flex items-center space-x-2">
+                                <x-heroicon-o-briefcase class="w-4 h-4 text-primary-500" />
+                                <span>Proyecto</span>
+                            </th>
                             @foreach (range(1, Carbon\Carbon::parse($currentDate)->daysInMonth) as $day)
-                                <th class="{{ $day === now()->day ? 'bg-blue-100 font-bold dark:bg-blue-700 dark:text-white' : '' }}">
+                                <th class="{{ $day === now()->day && $currentDate->format('m Y') === now()->format('m Y') ? 'current-day' : '' }}">
                                     {{ $day }}
                                     <div class="text-xs text-gray-500 dark:text-gray-400">
                                         {{ Carbon\Carbon::parse($currentDate)->setDay($day)->format('D') }}
@@ -39,7 +41,12 @@
                     <tbody>
                         @foreach (App\Models\Project::all() as $project)
                             <tr>
-                                <td>{{ $project->name }}</td>
+                                <td class="project-cell">
+                                    <div class="flex items-center space-x-2">
+                                        <x-heroicon-o-folder class="w-4 h-4 text-primary-500" />
+                                        <span>{{ $project->name }}</span>
+                                    </div>
+                                </td>
                                 @foreach (range(1, Carbon\Carbon::parse($currentDate)->daysInMonth) as $day)
                                     <td wire:click="selectCell({{ $project->id }}, {{ $day }})"
                                         class="cursor-pointer {{ $selectedCell && $selectedCell['project_id'] == $project->id && $selectedCell['day'] == $day ? 'selected-cell' : '' }}">
@@ -50,6 +57,7 @@
                                         @if ($hours > 0)
                                             <div class="flex justify-center items-center">
                                                 <span class="highlighted-cell">
+                                                    <x-heroicon-o-clock class="w-3 h-3 inline mr-1" />
                                                     {{ number_format($hours, 1) }}h
                                                 </span>
                                             </div>
@@ -62,7 +70,12 @@
                         @endforeach
 
                         <tr class="timesheet-total-cell">
-                            <td>Total por día</td>
+                            <td class="text-left">
+                                <div class="flex items-center space-x-2">
+                                    <x-heroicon-o-calculator class="w-4 h-4" />
+                                    <span>Total por día</span>
+                                </div>
+                            </td>
                             @foreach (range(1, Carbon\Carbon::parse($currentDate)->daysInMonth) as $day)
                                 <td>
                                     {{ number_format($this->getDayTotal($day), 1) }}h
@@ -75,16 +88,25 @@
 
             {{-- Resumen del Mes --}}
             <div class="bg-white dark:bg-gray-900 rounded-lg p-4">
-                <h3 class="text-lg font-medium mb-3">Resumen del Mes</h3>
+                <h3 class="text-lg font-medium mb-3 flex items-center">
+                    <x-heroicon-o-chart-bar class="w-5 h-5 mr-2 text-primary-500" />
+                    Resumen del Mes
+                </h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded">
-                        <div class="text-sm text-gray-600 dark:text-gray-400">Total Horas</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+                            <x-heroicon-o-clock class="w-4 h-4 mr-2" />
+                            Total Horas
+                        </div>
                         <div class="text-xl font-bold">
                             {{ number_format(collect($this->entries)->sum('hours'), 1) }}h
                         </div>
                     </div>
                     <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded">
-                        <div class="text-sm text-gray-600 dark:text-gray-400">Días Trabajados</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+                            <x-heroicon-o-calendar-days class="w-4 h-4 mr-2" />
+                            Días Trabajados
+                        </div>
                         <div class="text-xl font-bold">
                             {{ collect($this->entries)->pluck('date')->unique()->count() }}
                         </div>
@@ -99,16 +121,16 @@
             width: 100%;
             border-collapse: collapse;
             font-family: Arial, sans-serif;
-            font-size: 14px;
+            font-size: 13px; /* Reducido de 14px */
         }
 
         .timesheet-table th {
             background-color: #f3f4f6;
-            padding: 10px 12px;
+            padding: 8px 10px; /* Reducido de 10px 12px */
             text-align: center;
             font-weight: 600;
             border-bottom: 2px solid #e5e7eb;
-            font-size: 13px;
+            font-size: 12px; /* Reducido de 13px */
             text-transform: uppercase;
             color: #374151;
         }
@@ -120,10 +142,19 @@
         }
 
         .timesheet-table td {
-            padding: 8px 12px;
+            padding: 6px 10px; /* Reducido de 8px 12px */
             border-bottom: 1px solid #e5e7eb;
             text-align: center;
             color: #374151;
+        }
+
+        .project-cell {
+            text-align: left !important;
+            font-size: 12px; /* Tamaño reducido para nombres de proyecto */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
         }
 
         .dark .timesheet-table td {
@@ -143,6 +174,7 @@
             font-weight: bold;
             color: #1f2937;
             background-color: #f3f4f6;
+            font-size: 12px; /* Reducido */
         }
 
         .dark .timesheet-total-cell {
@@ -165,15 +197,31 @@
         }
 
         .highlighted-cell {
-            padding: 2px 6px;
+            padding: 2px 4px; /* Reducido de 2px 6px */
             border-radius: 4px;
             background-color: #e5e7eb;
             color: #374151;
+            font-size: 11px; /* Reducido */
+            display: inline-flex;
+            align-items: center;
         }
 
         .dark .highlighted-cell {
             background-color: #4a5568;
             color: #e5e7eb;
+        }
+
+        /* Estilos para el día actual */
+        .current-day {
+            background-color: #dbeafe !important; /* Color blue-100 */
+            font-weight: 600;
+            border-bottom: 2px solid #3b82f6 !important; /* Color blue-500 */
+        }
+
+        .dark .current-day {
+            background-color: #1e40af !important; /* Color blue-800 */
+            border-bottom: 2px solid #60a5fa !important; /* Color blue-400 */
+            color: #fff;
         }
     </style>
 </div>

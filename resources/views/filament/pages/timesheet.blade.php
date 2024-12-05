@@ -41,9 +41,11 @@
                                 <td class="project-cell">
                                     <span>{{ $project->name }}</span>
                                 </td>
-                                @foreach (range(1, Carbon\Carbon::parse($currentDate)->daysInMonth) as $day)
-                                    <td wire:click="selectCell({{ $project->id }}, {{ $day }})"
-                                        class="cursor-pointer {{ $selectedCell && $selectedCell['project_id'] == $project->id && $selectedCell['day'] == $day ? 'selected-cell' : '' }}">
+
+                              @foreach (range(1, Carbon\Carbon::parse($currentDate)->daysInMonth) as $day)
+    <td wire:click="selectCell({{ $project->id }}, {{ $day }})"
+        wire:dblclick="openModal({{ $project->id }}, {{ $day }})"
+        class="cursor-pointer {{ $selectedCell && $selectedCell['project_id'] == $project->id && $selectedCell['day'] == $day ? 'selected-cell' : '' }}">
                                         @php
                                             $hours = $this->getCellEntries($project->id, $day);
                                         @endphp

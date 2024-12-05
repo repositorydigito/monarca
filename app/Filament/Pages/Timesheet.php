@@ -207,6 +207,11 @@ class Timesheet extends Page
     }
 
 
+    public function openModal($projectId, $day): void
+    {
+        $this->selectCell($projectId, $day);
+        $this->mountAction('timeEntry');
+    }
 
     public function getCellEntries($projectId, $day)
     {

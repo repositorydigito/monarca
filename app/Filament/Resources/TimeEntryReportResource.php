@@ -29,6 +29,7 @@ class TimeEntryReportResource extends Resource
                     ->join('projects', 'projects.id', '=', 'time_entries.project_id')
                     ->select([
                         'time_entries.id',
+                        'users.id as user_id',
                         'users.name as user_name',
                         'projects.name as project_name',
                         'time_entries.phase',
@@ -114,7 +115,13 @@ class TimeEntryReportResource extends Resource
                                 $data['until'],
                                 fn(Builder $query, $date): Builder => $query->whereDate('time_entries.date', '<=', $date),
                             );
-                    })
+                    }),
+
+                Tables\Filters\SelectFilter::make('user_id')
+                    ->label('Usuario')
+                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->preload()
             ])
             ->filtersFormColumns(2)
             ->striped();

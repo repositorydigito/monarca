@@ -120,11 +120,17 @@ class TimeEntryReportResource extends Resource
                     ->icon('heroicon-o-calendar'),
             ])
             ->groups([
-                'user_name',
-                'project_name',
-                'phase'
+                Tables\Grouping\Group::make('project_name')
+                    ->label('Proyecto')
+                    ->collapsible(),
+                Tables\Grouping\Group::make('user_name')
+                    ->label('Usuario')
+                    ->collapsible(),
+                Tables\Grouping\Group::make('phase')
+                    ->label('Fase')
+                    ->collapsible(),
             ])
-            ->defaultGroup('user_name')
+            ->defaultGroup('project_name')
             ->filters([
                 Tables\Filters\SelectFilter::make('phase')
                     ->label('Fase')

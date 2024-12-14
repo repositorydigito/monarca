@@ -12,9 +12,12 @@
         "guava/calendar": "^1.10",
         "joaopaulolndev/filament-edit-profile": "^1.0",
         "laravel/framework": "^11.9",
+        "laravel/octane": "^2.6",
         "laravel/tinker": "^2.9",
         "maatwebsite/excel": "^3.1",
         "phiki/phiki": "^0.3.2",
+        "spiral/roadrunner-cli": "^2.6.0",
+        "spiral/roadrunner-http": "^3.3.0",
         "tomatophp/filament-users": "^2.0"
     },
     "require-dev": {

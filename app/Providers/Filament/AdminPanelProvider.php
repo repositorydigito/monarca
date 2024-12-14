@@ -18,6 +18,8 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Widgets\CalendarWidget;
+use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
+
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -59,6 +61,14 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+                FilamentEditProfilePlugin::make()
+                ->slug('mi-perfil')
+                ->setTitle('Mi Perfil')
+                ->setNavigationLabel('Mi Perfil')
+                ->setNavigationGroup('Configuracion')
+                ->shouldShowDeleteAccountForm(false)
+                ->shouldShowEditProfileForm(false)
+                ->setIcon('heroicon-o-user')
             ])->plugin(\TomatoPHP\FilamentUsers\FilamentUsersPlugin::make());
     }
 }

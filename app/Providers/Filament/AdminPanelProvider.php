@@ -34,10 +34,10 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName('Dígito')
-            ->brandLogo(asset('images/white.png'))
-            ->darkModeBrandLogo(asset('images/black.png')) // Logo para modo oscuro
+            ->brandLogo(asset('images/black.png'))
+            ->darkModeBrandLogo(asset('images/white.png')) // Logo para modo oscuro
             ->colors([
-                'primary' => Color::Indigo,
+                'primary' => Color::Blue,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

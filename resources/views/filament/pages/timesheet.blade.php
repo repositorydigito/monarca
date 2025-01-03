@@ -179,6 +179,15 @@
             background-color: white;
         }
 
+        .dark .project-cell {
+            background-color: #111827;
+            color: #e5e7eb;
+        }
+
+        .dark .timesheet-table tr:hover .project-cell {
+            background-color: #374151;
+        }
+
         .dark .timesheet-table td {
             color: #e5e7eb;
             border-bottom: 1px solid #374151;

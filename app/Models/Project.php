@@ -9,7 +9,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Project extends Model
 {
     protected $fillable = [
-        'name', 'code', 'entity_id', 'business_line_id', 'start_date', 'end_date', 'description', 'created_by', 'updated_by',
+        'name',
+        'code',
+        'entity_id',
+        'business_line_id',
+        'start_date',
+        'end_date',
+        'description',
+        'created_by',
+        'updated_by',
     ];
 
     public function entity(): BelongsTo
@@ -45,5 +53,9 @@ class Project extends Model
     public function businessLine(): BelongsTo
     {
         return $this->belongsTo(BusinessLine::class);
+    }
+    public function timeEntries()
+    {
+        return $this->hasMany(TimeEntry::class);
     }
 }

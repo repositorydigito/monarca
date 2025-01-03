@@ -6,9 +6,12 @@ use App\Models\Income;
 use App\Models\Expense;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 
 class IncomeExpensesOverview extends ChartWidget
 {
+
+    use HasWidgetShield;
     protected static ?string $heading = 'Ingresos vs Gastos';
     protected static ?int $sort = 2;
     protected static ?string $maxHeight = '300px';

@@ -4,9 +4,13 @@ namespace App\Filament\Widgets;
 
 use App\Models\Expense;
 use Filament\Widgets\ChartWidget;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
+
 
 class ExpensesByCategory extends ChartWidget
 {
+    use HasWidgetShield;
+
     protected static ?string $heading = 'Gastos por Categoría';
     protected static ?int $sort = 4;
 

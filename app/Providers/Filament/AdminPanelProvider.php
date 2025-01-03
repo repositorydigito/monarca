@@ -19,6 +19,9 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Widgets\CalendarWidget;
 use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
+use App\Filament\Widgets\IncomeExpensesOverview;
+use App\Filament\Widgets\ExpensesByCostCenter;
+use App\Filament\Widgets\ExpensesByCategory;
 
 
 class AdminPanelProvider extends PanelProvider
@@ -30,9 +33,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('DÍGITO')
-            ->brandLogo(asset('images/black.png'))
-            ->darkModeBrandLogo(asset('images/white.png')) // Logo para modo oscuro
+            ->brandName('JC&R')
+            ->brandLogo(asset('images/jcyr.png'))
+            ->darkModeBrandLogo(asset('images/jcyr.png')) // Logo para modo oscuro
             ->colors([
                 'primary' => Color::Indigo,
             ])
@@ -43,7 +46,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class
+                Widgets\AccountWidget::class,
+                \App\Filament\Widgets\IncomeExpensesOverview::class,
+                \App\Filament\Widgets\ExpensesByCostCenter::class,
+                \App\Filament\Widgets\ExpensesByCategory::class
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -62,13 +68,13 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 FilamentEditProfilePlugin::make()
-                ->slug('mi-perfil')
-                ->setTitle('Mi Perfil')
-                ->setNavigationLabel('Mi Perfil')
-                ->setNavigationGroup('Configuracion')
-                ->shouldShowDeleteAccountForm(false)
-                ->shouldShowEditProfileForm(false)
-                ->setIcon('heroicon-o-user')
+                    ->slug('mi-perfil')
+                    ->setTitle('Mi Perfil')
+                    ->setNavigationLabel('Mi Perfil')
+                    ->setNavigationGroup('Configuracion')
+                    ->shouldShowDeleteAccountForm(false)
+                    ->shouldShowEditProfileForm(false)
+                    ->setIcon('heroicon-o-user')
             ])->plugin(\TomatoPHP\FilamentUsers\FilamentUsersPlugin::make());
     }
 }

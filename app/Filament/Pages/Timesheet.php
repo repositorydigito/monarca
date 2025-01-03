@@ -267,4 +267,9 @@ class Timesheet extends Page
             ->filter(fn($entry) => Carbon::parse($entry['date'])->toDateString() === $date)
             ->sum('hours');
     }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 }

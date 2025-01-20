@@ -161,7 +161,8 @@
 
     <!-- Estilos CSS para Light/Dark y para sticky row + column -->
     <style>
-  .timesheet-table {
+  /* TABLA BASE */
+.timesheet-table {
     border-collapse: collapse;
     font-size: 13px;
     width: 100%;
@@ -170,8 +171,9 @@
 .timesheet-table th,
 .timesheet-table td {
     border-bottom: 1px solid #e5e7eb;
-    padding: 12px 16px;
+    padding: 8px 12px;
     text-align: center;
+    font-size: 11px;
 }
 
 .dark .timesheet-table th,
@@ -263,10 +265,11 @@ td.sticky.left-0 {
 
 .project-cell {
     text-align: left !important;
-    padding: 12px 20px 12px 36px !important;
+    padding: 8px 20px 8px 36px !important;
     font-weight: 400;
-    font-size: 13px;
+    font-size: 11px;
     color: #334155;
+    line-height: 1.3;
 }
 
 .dark .project-cell {

@@ -46,7 +46,7 @@ class EntityResource extends Resource
                             ->label('Nombre Comercial')
                             ->maxLength(255),
                         Forms\Components\TextInput::make('tax_id')
-                            ->label('Documento')
+                            ->label('RUC')
                             ->required()
                             ->maxLength(20),
                         Forms\Components\TextInput::make('business_group')

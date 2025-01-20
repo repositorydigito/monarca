@@ -1,6 +1,8 @@
 <div>
     <x-filament::page>
         <div class="space-y-6">
+
+            <!-- Header Navigation -->
             <div class="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
                 <div class="flex items-center space-x-4">
                     <button wire:click="previousMonth" class="filament-button filament-button-size-md">
@@ -18,83 +20,107 @@
                 </div>
             </div>
 
-            <div class="relative overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-                <table class="timesheet-table">
+            <!-- Timesheet Table -->
+            <!-- Contenedor con scroll (horizontal y vertical) para que funcione position:sticky -->
+            <div class="relative overflow-x-auto overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 max-h-[70vh]">
+                <table class="timesheet-table w-full border-collapse">
+                    <!-- Encabezados -->
                     <thead>
-                        <tr>
-                            <th class="text-left" style="min-width: 200px;">
-                                <span>Proyecto</span>
+                        <tr class="sticky top-0 z-10 table-header-bg">
+                            <!-- Primera columna (Proyecto) con sticky left-0 y fondo -->
+                            <th
+                                class="sticky left-0 z-20 sticky-left-bg px-4 py-2"
+                                style="min-width: 200px; text-align: left;"
+                            >
+                                PROYECTO
                             </th>
+                            <!-- Encabezados de días -->
                             @foreach (range(1, Carbon\Carbon::parse($currentDate)->daysInMonth) as $day)
-                                <th class="{{ $day === now()->day && $currentDate->format('m Y') === now()->format('m Y') ? 'current-day' : '' }}">
+                                <th
+                                    class="sticky-header px-4 py-2 {{ $day === now()->day && $currentDate->format('m Y') === now()->format('m Y') ? 'current-day' : '' }}"
+                                >
                                     {{ $day }}
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    <div class="text-xs opacity-80">
                                         {{ Carbon\Carbon::parse($currentDate)->setDay($day)->format('D') }}
                                     </div>
                                 </th>
                             @endforeach
                         </tr>
                     </thead>
+
+                    <!-- Cuerpo de la tabla -->
                     <tbody>
-                        @foreach (App\Models\BusinessLine::with('projects')
-                            ->get()
-                            ->sortByDesc(function($businessLine) {
-                                return $businessLine->projects->count();
-                            }) as $businessLine)
-                            <tr class="bg-gray-100 dark:bg-gray-700">
-                                <td class="text-left px-4 py-2 font-medium">
+                        @foreach (
+                            App\Models\BusinessLine::with('projects')
+                                ->get()
+                                ->sortByDesc(fn($businessLine) => $businessLine->projects->count())
+                            as $businessLine
+                        )
+                            <!-- Fila de la LÍNEA DE NEGOCIO -->
+                            <tr class="business-line-row">
+                                <td class="business-line-cell sticky left-0 z-10 sticky-left-bg px-4 py-2">
                                     {{ $businessLine->name }}
                                 </td>
                                 @foreach (range(1, Carbon\Carbon::parse($currentDate)->daysInMonth) as $day)
-                                    <td></td>
+                                    <td class="px-4 py-2"></td>
                                 @endforeach
                             </tr>
 
+                            <!-- Filas de PROYECTOS -->
                             @forelse($businessLine->projects as $project)
-                                <tr>
-                                    <td class="project-cell pl-8">
-                                        <span class="block truncate">{{ $project->name }}</span>
+                                <tr class="project-row">
+                                    <!-- Primera columna sticky (nombre del proyecto) -->
+                                    <td
+                                        class="project-cell sticky left-0 z-10 sticky-left-bg px-4 py-2"
+                                        wire:click="selectCell({{ $project->id }}, 1)"
+                                    >
+                                        <span class="block truncate">
+                                            {{ $project->name }}
+                                        </span>
                                     </td>
 
+                                    <!-- Celdas de días con horas -->
                                     @foreach (range(1, Carbon\Carbon::parse($currentDate)->daysInMonth) as $day)
-                                        <td wire:click="selectCell({{ $project->id }}, {{ $day }})"
+                                        <td
+                                            wire:click="selectCell({{ $project->id }}, {{ $day }})"
                                             wire:dblclick="openModal({{ $project->id }}, {{ $day }})"
-                                            class="cursor-pointer {{ $selectedCell && $selectedCell['project_id'] == $project->id && $selectedCell['day'] == $day ? 'selected-cell' : '' }}">
+                                            class="cursor-pointer px-4 py-2 text-center {{ $selectedCell && $selectedCell['project_id'] == $project->id && $selectedCell['day'] == $day ? 'selected-cell' : '' }}"
+                                        >
                                             @php
                                                 $hours = $this->getCellEntries($project->id, $day);
                                             @endphp
-
                                             @if ($hours > 0)
                                                 <div class="flex justify-center items-center">
-                                                    <span class="highlighted-cell">
-                                                        <x-heroicon-o-clock class="w-3 h-3 inline mr-1" />
+                                                    <span class="highlighted-cell flex items-center gap-1">
+                                                        <x-heroicon-o-clock class="w-4 h-4" />
                                                         {{ number_format($hours, 1) }}h
                                                     </span>
                                                 </div>
                                             @else
-                                                <span class="text-xs text-gray-500 dark:text-gray-400">0.0h</span>
+                                                <span class="text-xs opacity-70">0.0h</span>
                                             @endif
                                         </td>
                                     @endforeach
                                 </tr>
                             @empty
-                                <tr>
-                                    <td class="text-center text-gray-500 pl-8">
+                                <tr class="project-row">
+                                    <td class="project-cell sticky left-0 z-10 sticky-left-bg opacity-70 px-4 py-2">
                                         No hay proyectos en esta línea
                                     </td>
                                     @foreach (range(1, Carbon\Carbon::parse($currentDate)->daysInMonth) as $day)
-                                        <td></td>
+                                        <td class="px-4 py-2"></td>
                                     @endforeach
                                 </tr>
                             @endforelse
                         @endforeach
 
+                        <!-- TOTAL POR DÍA -->
                         <tr class="timesheet-total-cell">
-                            <td class="text-left pl-3">
-                                <span>Total por día</span>
+                            <td class="sticky left-0 z-10 sticky-left-bg px-4 py-2">
+                                Total por día
                             </td>
                             @foreach (range(1, Carbon\Carbon::parse($currentDate)->daysInMonth) as $day)
-                                <td>
+                                <td class="px-4 py-2 text-center">
                                     {{ number_format($this->getDayTotal($day), 1) }}h
                                 </td>
                             @endforeach
@@ -103,6 +129,7 @@
                 </table>
             </div>
 
+            <!-- Resumen del Mes -->
             <div class="bg-white dark:bg-gray-900 rounded-lg p-4">
                 <h3 class="text-lg font-medium mb-3 flex items-center">
                     <x-heroicon-o-chart-bar class="w-5 h-5 mr-2 text-primary-500" />
@@ -132,126 +159,194 @@
         </div>
     </x-filament::page>
 
+    <!-- Estilos CSS para Light/Dark y para sticky row + column -->
     <style>
-        .timesheet-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: Arial, sans-serif;
-            font-size: 13px;
-        }
+  .timesheet-table {
+    border-collapse: collapse;
+    font-size: 13px;
+    width: 100%;
+}
 
-        .timesheet-table th {
-            background-color: #f3f4f6;
-            padding: 8px 10px;
-            text-align: center;
-            font-weight: 600;
-            border-bottom: 2px solid #e5e7eb;
-            font-size: 12px;
-            text-transform: uppercase;
-            color: #374151;
-        }
+.timesheet-table th,
+.timesheet-table td {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 12px 16px;
+    text-align: center;
+}
 
-        .dark .timesheet-table th {
-            background-color: #1f2937;
-            color: #e5e7eb;
-            border-bottom: 2px solid #374151;
-        }
+.dark .timesheet-table th,
+.dark .timesheet-table td {
+    border-bottom: 1px solid #2d2d2d;
+}
 
-        .timesheet-table td {
-            padding: 6px 10px;
-            border-bottom: 1px solid #e5e7eb;
-            text-align: center;
-            color: #374151;
-            min-width: 40px;
-        }
+/* ENCABEZADO (primera fila) STICKY */
+.sticky-header {
+    position: sticky !important;
+    top: 0;
+    z-index: 10;
+    font-weight: 600;
+}
 
-        .project-cell {
-            text-align: left !important;
-            font-size: 12px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 250px;
-            padding: 6px 12px;
-            line-height: 1.3;
-            color: #4a5568;
-            font-weight: 500;
-            background-color: white;
-        }
+.table-header-bg {
+    background-color: #f8fafc;
+}
 
-        .dark .project-cell {
-            background-color: #111827;
-            color: #e5e7eb;
-        }
+.dark .table-header-bg {
+    background-color: #1e1e1e;
+}
 
-        .dark .timesheet-table tr:hover .project-cell {
-            background-color: #374151;
-        }
+/* PRIMERA COLUMNA STICKY */
+.sticky-left-bg {
+    background-color: #f8fafc;
+    position: sticky !important;
+    left: 0;
+}
 
-        .dark .timesheet-table td {
-            color: #e5e7eb;
-            border-bottom: 1px solid #374151;
-        }
+.dark .sticky-left-bg {
+    background-color: #1e1e1e;
+}
 
-        .timesheet-table tr:hover {
-            background-color: #f3f4f6;
-        }
+/* Aseguramos los z-index correctos */
+th.sticky.left-0 {
+    position: sticky !important;
+    left: 0;
+    z-index: 20; /* Encima de las celdas td */
+}
 
-        .dark .timesheet-table tr:hover {
-            background-color: #374151;
-        }
+td.sticky.left-0 {
+    position: sticky !important;
+    left: 0;
+    z-index: 10;
+}
 
-        .timesheet-total-cell {
-            font-weight: bold;
-            color: #1f2937;
-            background-color: #f3f4f6;
-            font-size: 12px;
-        }
+/* DÍA ACTUAL */
+.current-day {
+    background-color: #eef2ff;
+    font-weight: 600;
+    color: #4f46e5;
+}
 
-        .dark .timesheet-total-cell {
-            color: #e5e7eb;
-            background-color: #2d3748;
-        }
+.dark .current-day {
+    background-color: #312e81;
+    color: #e0e7ff;
+}
 
-        .timesheet-total-cell:hover {
-            background-color: #e5e7eb;
-        }
+/* LÍNEA DE NEGOCIO */
+.business-line-row {
+    background-color: #f1f5f9;
+}
 
-        .dark .timesheet-total-cell:hover {
-            background-color: #4a5568;
-        }
+.dark .business-line-row {
+    background-color: #262626;
+}
 
-        .selected-cell {
-            background-color: #f59e0b;
-            color: white !important;
-            font-weight: bold;
-        }
+.business-line-cell {
+    text-align: left !important;
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+    padding: 16px 20px !important;
+}
 
-        .highlighted-cell {
-            padding: 2px 4px;
-            border-radius: 4px;
-            background-color: #e5e7eb;
-            color: #374151;
-            font-size: 11px;
-            display: inline-flex;
-            align-items: center;
-        }
+.dark .business-line-cell {
+    color: #e5e7eb;
+}
 
-        .dark .highlighted-cell {
-            background-color: #4a5568;
-            color: #e5e7eb;
-        }
+/* PROYECTOS */
+.project-row {
+    background-color: #ffffff;
+}
 
-        .current-day {
-            background-color: #dbeafe !important;
-            font-weight: 600;
-            border-bottom: 2px solid #3b82f6 !important;
-        }
+.dark .project-row {
+    background-color: #1a1a1a;
+}
 
-        .dark .current-day {
-            background-color: #1e40af !important;
-            border-bottom: 2px solid #60a5fa !important;
-            color: #fff;
-        }
+.project-cell {
+    text-align: left !important;
+    padding: 12px 20px 12px 36px !important;
+    font-weight: 400;
+    font-size: 13px;
+    color: #334155;
+}
+
+.dark .project-cell {
+    color: #cbd5e1;
+}
+
+/* TOTAL POR DÍA */
+.timesheet-total-cell {
+    background-color: #f8fafc;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.dark .timesheet-total-cell {
+    background-color: #1e1e1e;
+    color: #e5e7eb;
+}
+
+/* CELDA SELECCIONADA */
+.selected-cell {
+    background-color: #eef2ff !important;
+}
+
+.dark .selected-cell {
+    background-color: #312e81 !important;
+}
+
+/* Horas con icono */
+.highlighted-cell {
+    font-weight: 500;
+    color: #4f46e5;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: rgba(79, 70, 229, 0.1);
+}
+
+.dark .highlighted-cell {
+    color: #818cf8;
+    background-color: rgba(99, 102, 241, 0.1);
+}
+
+/* Contenedor con scroll */
+.relative.overflow-x-auto.overflow-y-auto {
+    max-height: 70vh;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+}
+
+.dark .relative.overflow-x-auto.overflow-y-auto {
+    border-color: #2d2d2d;
+}
+
+/* Ajustes de iconos */
+.w-4 {
+    width: 1rem !important;
+    height: 1rem !important;
+}
+
+.w-5 {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+}
+
+/* Aseguramos que los elementos sticky mantengan su fondo */
+.sticky-left-bg::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+/* Para el scroll suave */
+.timesheet-table {
+    scroll-behavior: smooth;
+}
     </style>
- </div>
+</div>

@@ -6,13 +6,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User;
 use App\Models\Project;
+use Illuminate\Database\Eloquent\Model;
 
 
-class TimeEntryReport extends TimeEntry
+class TimeEntryReport extends Model
 {
     protected $table = 'time_entries';
 
-
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
         'user_id',
         'project_id',
@@ -44,4 +49,6 @@ class TimeEntryReport extends TimeEntry
     {
         return $this->belongsTo(Project::class);
     }
+
+    
 }

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TimeEntry extends Model
 {
+    protected $table = 'time_entries';
+
     protected $fillable = [
         'user_id',
         'project_id',

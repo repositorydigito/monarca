@@ -13,12 +13,7 @@ class ListTimeEntryReports extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('download')
-                ->label('Exportar Excel')
-                ->icon('heroicon-o-arrow-down-tray')
-                ->action(function () {
-                    // Aquí puedes implementar la lógica de exportación si lo deseas
-                })
+          
         ];
     }
 }

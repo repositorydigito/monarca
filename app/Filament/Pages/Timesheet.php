@@ -30,25 +30,29 @@ class Timesheet extends Page
     public $phaseHours = [];
 
     public $phases = [
-        'inicio' => [
-            'name' => 'Inicio',
+        'direccion_financiera' => [
+            'name' => 'Dirección Financiera',
+            'color' => 'bg-blue-400'
+        ],
+        'finanzas' => [
+            'name' => 'Finanzas',
+            'color' => 'bg-blue-200'
+        ],
+        'contabilidad' => [
+            'name' => 'Contabilidad',
             'color' => 'bg-green-400'
         ],
-        'planificacion' => [
-            'name' => 'Planificación',
-            'color' => 'bg-green-200'
+        'control_de_gestion' => [
+            'name' => 'Control de Gestión',
+            'color' => 'bg-yellow-300'
         ],
-        'ejecucion' => [
-            'name' => 'Ejecución',
-            'color' => 'bg-yellow-200'
+        'administracion' => [
+            'name' => 'Administración',
+            'color' => 'bg-purple-300'
         ],
-        'control' => [
-            'name' => 'Control',
-            'color' => 'bg-yellow-400'
-        ],
-        'cierre' => [
-            'name' => 'Cierre',
-            'color' => 'bg-green-100'
+        'comercial' => [
+            'name' => 'Comercial',
+            'color' => 'bg-red-300'
         ]
     ];
 
@@ -105,38 +109,51 @@ class Timesheet extends Page
             Action::make('timeEntry')
                 ->label('Gestionar Horas')
                 ->form([
-                    Grid::make(3)
+                    Grid::make(2)
                         ->schema([
-                            TextInput::make('phaseHours.inicio')
-                                ->label('Inicio')
+                            TextInput::make('phaseHours.direccion_financiera')
+                                ->label('Dirección Financiera')
+                                ->helperText('Horas dedicadas al área de Dirección Financiera')
                                 ->numeric()
                                 ->minValue(0)
                                 ->maxValue(24)
                                 ->step(0.5)
                                 ->suffix('horas'),
-                            TextInput::make('phaseHours.planificacion')
-                                ->label('Planificación')
+                            TextInput::make('phaseHours.finanzas')
+                                ->label('Finanzas')
+                                ->helperText('Horas dedicadas al área de Finanzas')
                                 ->numeric()
                                 ->minValue(0)
                                 ->maxValue(24)
                                 ->step(0.5)
                                 ->suffix('horas'),
-                            TextInput::make('phaseHours.ejecucion')
-                                ->label('Ejecución')
+                            TextInput::make('phaseHours.contabilidad')
+                                ->label('Contabilidad')
+                                ->helperText('Horas dedicadas al área de Contabilidad')
                                 ->numeric()
                                 ->minValue(0)
                                 ->maxValue(24)
                                 ->step(0.5)
                                 ->suffix('horas'),
-                            TextInput::make('phaseHours.control')
-                                ->label('Control')
+                            TextInput::make('phaseHours.control_de_gestion')
+                                ->label('Control de Gestión')
+                                ->helperText('Horas dedicadas al área de Control de Gestión')
                                 ->numeric()
                                 ->minValue(0)
                                 ->maxValue(24)
                                 ->step(0.5)
                                 ->suffix('horas'),
-                            TextInput::make('phaseHours.cierre')
-                                ->label('Cierre')
+                            TextInput::make('phaseHours.administracion')
+                                ->label('Administración')
+                                ->helperText('Horas dedicadas al área de Administración')
+                                ->numeric()
+                                ->minValue(0)
+                                ->maxValue(24)
+                                ->step(0.5)
+                                ->suffix('horas'),
+                            TextInput::make('phaseHours.comercial')
+                                ->label('Comercial')
+                                ->helperText('Horas dedicadas al área Comercial')
                                 ->numeric()
                                 ->minValue(0)
                                 ->maxValue(24)
@@ -146,10 +163,14 @@ class Timesheet extends Page
                 ])
                 ->modalWidth(MaxWidth::Medium)
                 ->modalHeading(function () {
+                    $date = Carbon::parse($this->currentDate)->setDay($this->selectedDay)->format('d/m/Y');
                     $hasHours = $this->selectedCell && $this->getCellEntries($this->selectedCell['project_id'], $this->selectedCell['day']) > 0;
-                    return $hasHours ? 'Actualizar Horas' : 'Registrar Horas';
+                    return $hasHours ? "Actualizar Horas: {$date}" : "Registrar Horas: {$date}";
                 })
-                ->modalDescription(fn() => "Proyecto: " . Project::find($this->selectedProject)?->name)
+                ->modalDescription(function () {
+                    $project = Project::find($this->selectedProject)?->name;
+                    return "Ingrese las horas trabajadas en cada departamento para el proyecto «{$project}». Las horas deben estar entre 0 y 24.";
+                })
                 ->fillForm(function () {
                     if (!$this->selectedProject || !$this->selectedDay) {
                         return [];

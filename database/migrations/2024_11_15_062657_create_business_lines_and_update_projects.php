@@ -20,12 +20,12 @@ class CreateBusinessLinesAndUpdateProjects extends Migration
         Schema::table('projects', static function (Blueprint $table): void {
             // Eliminar la columna existente
             $table->dropColumn('business_line');
-            
+
             // Agregar la nueva columna de relación
             $table->foreignId('business_line_id')
-                  ->nullable()
-                  ->constrained()
-                  ->nullOnDelete();
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
         });
     }
 

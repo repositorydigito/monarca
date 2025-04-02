@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TimeEntry extends Model
 {
@@ -15,22 +14,20 @@ class TimeEntry extends Model
         'project_id',
         'date',
         'phase',
-        'hours'
+        'hours',
+        'description',
     ];
 
     protected $casts = [
         'date' => 'date',
-        'hours' => 'decimal:2'
+        'hours' => 'decimal:2',
     ];
 
     public const PHASES = [
-        'inicio' => 'Inicio',
-        'planificacion' => 'Planificación',
-        'ejecucion' => 'Ejecución',
-        'control' => 'Control',
-        'cierre' => 'Cierre'
+        'dia' => 'Día',
+        'noche' => 'Noche',
+        'madrugada' => 'Madrugada',
     ];
-
 
     public function user(): BelongsTo
     {

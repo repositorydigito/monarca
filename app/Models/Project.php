@@ -54,6 +54,7 @@ class Project extends Model
     {
         return $this->belongsTo(BusinessLine::class);
     }
+
     public function timeEntries()
     {
         return $this->hasMany(TimeEntry::class);

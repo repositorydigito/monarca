@@ -1,8 +1,9 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -10,7 +11,7 @@ return new class extends Migration
     {
         Schema::table('equipment_logs', function (Blueprint $table) {
             // Verificar y modificar cada columna solo si no tiene las especificaciones ya aplicadas
-            if (!DB::getSchemaBuilder()->getColumnType('equipment_logs', 'start_time') === 'double') {
+            if (! DB::getSchemaBuilder()->getColumnType('equipment_logs', 'start_time') === 'double') {
                 $table->double('start_time')
                     ->nullable()
                     ->default(null)
@@ -18,7 +19,7 @@ return new class extends Migration
                     ->change();
             }
 
-            if (!DB::getSchemaBuilder()->getColumnType('equipment_logs', 'end_time') === 'double') {
+            if (! DB::getSchemaBuilder()->getColumnType('equipment_logs', 'end_time') === 'double') {
                 $table->double('end_time')
                     ->nullable()
                     ->default(null)
@@ -26,7 +27,7 @@ return new class extends Migration
                     ->change();
             }
 
-            if (!DB::getSchemaBuilder()->getColumnType('equipment_logs', 'engine_hours') === 'double') {
+            if (! DB::getSchemaBuilder()->getColumnType('equipment_logs', 'engine_hours') === 'double') {
                 $table->double('engine_hours')
                     ->nullable()
                     ->default(null)
@@ -34,7 +35,7 @@ return new class extends Migration
                     ->change();
             }
 
-            if (!DB::getSchemaBuilder()->getColumnType('equipment_logs', 'delay_hours') === 'double') {
+            if (! DB::getSchemaBuilder()->getColumnType('equipment_logs', 'delay_hours') === 'double') {
                 $table->double('delay_hours')
                     ->nullable()
                     ->default(null)
@@ -42,14 +43,14 @@ return new class extends Migration
                     ->change();
             }
 
-            if (!DB::getSchemaBuilder()->getColumnType('equipment_logs', 'delay_activity') === 'enum') {
+            if (! DB::getSchemaBuilder()->getColumnType('equipment_logs', 'delay_activity') === 'enum') {
                 $table->enum('delay_activity', [
                     'CALENTAMIENTO',
                     'TRASLADO_EQUIPO',
                     'MANTENIMIENTO_PREVIO',
                     'MANTENIMIENTO_PROGRAMADO',
                     'HORAS_MOTOR_MANTENIMIENTO',
-                    'HORAS_MOTOR_MANTENIMIENTO_NO_PROGRAMADO'
+                    'HORAS_MOTOR_MANTENIMIENTO_NO_PROGRAMADO',
                 ])
                     ->nullable()
                     ->default(null)

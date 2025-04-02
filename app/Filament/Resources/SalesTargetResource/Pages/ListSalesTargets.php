@@ -18,6 +18,11 @@ class ListSalesTargets extends ListRecords
         ];
     }
 
+    protected static function canDeleteBusinessLine(BusinessLine $line): bool
+    {
+        // Lógica para determinar si la línea de negocio puede ser eliminada
+        return true; // Cambia esto según tus reglas de negocio
+    }
 
     public function deleteLine($lineId)
     {
@@ -27,7 +32,10 @@ class ListSalesTargets extends ListRecords
             $line->salesTargets()->delete();
             $line->delete();
 
-            $this->notify('success', 'Línea eliminada correctamente');
+            Notification::make()
+                ->title('Línea eliminada correctamente')
+                ->success()
+                ->send();
         }
     }
 }

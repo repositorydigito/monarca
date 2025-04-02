@@ -12,7 +12,7 @@ return new class extends Migration
             $table->integer('year')->nullable(); // O ajusta el tipo de dato y restricciones según sea necesario
         });
     }
-    
+
     public function down()
     {
         Schema::table('sales_target_versions', function (Blueprint $table) {

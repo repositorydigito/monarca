@@ -3,18 +3,18 @@
 namespace App\Filament\Resources\ExpenseResource\Pages;
 
 use App\Filament\Resources\ExpenseResource;
-use App\Models\Expense;
-use App\Models\Entity;
-use App\Models\CostCenter;
 use App\Models\Category;
+use App\Models\CostCenter;
+use App\Models\Entity;
+use App\Models\Expense;
 use App\Models\Project;
 use Carbon\Carbon;
 use EightyNine\ExcelImport\ExcelImportAction;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
-use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class ListExpenses extends ListRecords
 {
@@ -45,8 +45,8 @@ class ListExpenses extends ListRecords
                             // Validación preliminar de claves requeridas antes del mapeo
                             $requiredKeys = ['tipo_documento', 'moneda', 'estado'];
                             foreach ($requiredKeys as $key) {
-                                if (!isset($row[$key])) {
-                                    Log::error("Key '{$key}' is missing or null in the row: " . json_encode($row));
+                                if (! isset($row[$key])) {
+                                    Log::error("Key '{$key}' is missing or null in the row: ".json_encode($row));
                                     throw new \Exception("Key '{$key}' is missing or null.");
                                 }
                             }
@@ -60,26 +60,26 @@ class ListExpenses extends ListRecords
                             Log::info("document_type: {$row['document_type']}, currency: {$row['currency']}, status: {$row['status']}");
 
                             // Mapear la entidad
-                            $entity = isset($row['entidad']) 
-                                ? Entity::where('business_name', 'LIKE', "%{$row['entidad']}%")->first() 
+                            $entity = isset($row['entidad'])
+                                ? Entity::where('business_name', 'LIKE', "%{$row['entidad']}%")->first()
                                 : null;
                             $row['entity_id'] = $entity?->id;
 
                             // Mapear el centro de costo
-                            $costCenter = isset($row['centro_de_costo']) 
-                                ? CostCenter::where('center_name', 'LIKE', "%{$row['centro_de_costo']}%")->first() 
+                            $costCenter = isset($row['centro_de_costo'])
+                                ? CostCenter::where('center_name', 'LIKE', "%{$row['centro_de_costo']}%")->first()
                                 : null;
                             $row['cost_center_id'] = $costCenter?->id;
 
                             // Mapear la categoría
-                            $category = isset($row['categoria']) 
-                                ? Category::where('category_name', 'LIKE', "%{$row['categoria']}%")->first() 
+                            $category = isset($row['categoria'])
+                                ? Category::where('category_name', 'LIKE', "%{$row['categoria']}%")->first()
                                 : null;
                             $row['category_id'] = $category?->id;
 
                             // Mapear el proyecto
-                            $project = isset($row['proyecto']) 
-                                ? Project::where('name', 'LIKE', "%{$row['proyecto']}%")->first() 
+                            $project = isset($row['proyecto'])
+                                ? Project::where('name', 'LIKE', "%{$row['proyecto']}%")->first()
                                 : null;
                             $row['project_id'] = $project?->id;
 
@@ -107,7 +107,7 @@ class ListExpenses extends ListRecords
 
                             if ($validator->fails()) {
                                 foreach ($validator->errors()->toArray() as $field => $errorMessages) {
-                                    Log::error("Validation failed for field '{$field}' with errors: " . implode(', ', $errorMessages));
+                                    Log::error("Validation failed for field '{$field}' with errors: ".implode(', ', $errorMessages));
                                 }
                                 throw new \Exception('Validation failed for row. See logs for details.');
                             }
@@ -116,9 +116,10 @@ class ListExpenses extends ListRecords
                             Expense::create($row);
 
                             Log::info('Row inserted successfully');
+
                             return $row;
                         } catch (\Exception $e) {
-                            Log::error('Error processing row: ' . json_encode($row) . '. Error: ' . $e->getMessage());
+                            Log::error('Error processing row: '.json_encode($row).'. Error: '.$e->getMessage());
                             throw $e;
                         }
                     });
@@ -140,7 +141,7 @@ class ListExpenses extends ListRecords
             try {
                 return Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
             } catch (\Exception $e) {
-                Log::error("Date conversion error for value '{$value}': " . $e->getMessage());
+                Log::error("Date conversion error for value '{$value}': ".$e->getMessage());
             }
         }
 

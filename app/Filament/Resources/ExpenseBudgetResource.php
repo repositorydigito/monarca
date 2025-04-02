@@ -3,30 +3,35 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ExpenseBudgetResource\Pages;
-use App\Models\ExpenseBudgetVersion;
-use App\Models\CostCenter;
 use App\Models\Category;
+use App\Models\CostCenter;
+use App\Models\ExpenseBudgetVersion;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Forms\Components\Placeholder;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\CheckboxList;
 
 class ExpenseBudgetResource extends Resource
 {
     protected static ?string $model = ExpenseBudgetVersion::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-calculator';
+
     protected static ?string $modelLabel = 'Presupuesto de Gastos';
+
     protected static ?string $pluralModelLabel = 'Presupuestos de Gastos';
+
     protected static ?string $navigationGroup = 'Finanzas';
+
     protected static ?int $navigationSort = 2;
 
     public static array $months = [
@@ -41,7 +46,7 @@ class ExpenseBudgetResource extends Resource
         'september' => 'Setiembre',
         'october' => 'Octubre',
         'november' => 'Noviembre',
-        'december' => 'Diciembre'
+        'december' => 'Diciembre',
     ];
 
     public static function form(Form $form): Form
@@ -52,7 +57,9 @@ class ExpenseBudgetResource extends Resource
             ->schema([
                 Select::make('year')
                     ->label('Año')
-                    ->options(array_combine($years, $years))
+                    ->options(collect($years)->mapWithKeys(function ($year) {
+                        return [$year => $year];
+                    })->all())
                     ->required(),
 
                 Section::make('Seleccionar Centro de Costos')
@@ -62,7 +69,7 @@ class ExpenseBudgetResource extends Resource
                             ->options(CostCenter::pluck('center_name', 'id'))
                             ->default(CostCenter::pluck('id'))
                             ->columns(2)
-                            ->live()
+                            ->live(),
                     ])->collapsed(),
 
                 Grid::make()
@@ -75,44 +82,44 @@ class ExpenseBudgetResource extends Resource
                                             ->content('')
                                             ->extraAttributes(['class' => 'text-sm font-semibold']),
                                         ...collect(self::$months)->map(
-                                            fn($label) =>
-                                            Placeholder::make('')
+                                            fn ($label) => Placeholder::make('')
                                                 ->content($label)
                                                 ->extraAttributes(['class' => 'text-center font-medium'])
                                         )->toArray(),
                                     ]),
 
                                 ...collect(CostCenter::with('categories')->get())->map(
-                                    fn($center) =>
-                                    Section::make($center->center_name)
+                                    fn ($center) => Section::make($center->center_name)
                                         ->schema([
                                             ...collect($center->categories)->map(
-                                                fn($category) =>
-                                                Grid::make(13)
+                                                fn ($category) => Grid::make(13)
                                                     ->schema([
                                                         Placeholder::make('')
-                                                            ->content($category->category_name)
+                                                            ->content($category->category_name) // Asegúrate de que 'category_name' existe en el modelo Category
                                                             ->extraAttributes(['class' => 'text-xs font-medium']),
                                                         ...collect(self::$months)->map(
-                                                            fn($label, $month) =>
-                                                            TextInput::make("expenseBudgets.{$center->id}.{$category->id}.{$month}_amount")
-                                                                ->label('')
-                                                                ->numeric()
-                                                                ->default(0)
-                                                                ->minValue(0)
-                                                                ->mask('999999.99')
-                                                                ->rules(['numeric', 'min:0'])
+                                                            function ($label, $month) use ($center, $category) {
+                                                                /** @var \App\Models\CostCenter $center */
+                                                                /** @var \App\Models\Category $category */
+
+                                                                return TextInput::make("expenseBudgets.{$center->id}.{$category->id}.{$month}_amount")
+                                                                    ->label('')
+                                                                    ->numeric()
+                                                                    ->default(0)
+                                                                    ->minValue(0)
+                                                                    ->mask('999999.99')
+                                                                    ->rules(['numeric', 'min:0']);
+                                                            }
                                                         )->toArray(),
                                                     ])
-                                            )->toArray()
+                                            )->toArray(),
                                         ])
                                         ->visible(
-                                            fn(callable $get): bool =>
-                                            in_array($center->id, $get('selected_centers') ?? [])
+                                            fn (callable $get): bool => in_array($center->id, $get('selected_centers') ?? [])
                                         )
-                                )->toArray()
-                            ])
-                    ])
+                                )->toArray(),
+                            ]),
+                    ]),
             ]);
     }
 
@@ -126,7 +133,7 @@ class ExpenseBudgetResource extends Resource
                     ->form([
                         Select::make('year')
                             ->label('Seleccione año')
-                            ->options(fn() => ExpenseBudgetVersion::distinct()->pluck('year', 'year')->toArray())
+                            ->options(fn () => ExpenseBudgetVersion::distinct()->pluck('year', 'year')->toArray())
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                 $set('version_id', null);
@@ -141,6 +148,7 @@ class ExpenseBudgetResource extends Resource
                                         ->pluck('version_number', 'id')
                                         ->toArray();
                                 }
+
                                 return ['' => 'Seleccione un año primero'];
                             }),
                     ])
@@ -148,13 +156,13 @@ class ExpenseBudgetResource extends Resource
                         return $query
                             ->when(
                                 $data['year'],
-                                fn($query, $year) => $query->where('year', $year)
+                                fn ($query, $year) => $query->where('year', $year)
                             )
                             ->when(
                                 $data['version_id'],
-                                fn($query, $versionId) => $query->where('id', $versionId)
+                                fn ($query, $versionId) => $query->where('id', $versionId)
                             );
-                    })
+                    }),
             ])
             ->headerActions([
                 Tables\Actions\Action::make('aprobar')
@@ -165,6 +173,7 @@ class ExpenseBudgetResource extends Resource
                     ->visible(function (HasTable $livewire) {
                         $filters = $livewire->tableFilters['expense_budget'] ?? [];
                         $version = ExpenseBudgetVersion::find($filters['version_id'] ?? null);
+
                         return $version && $version->status === 'draft';
                     })
                     ->action(function (HasTable $livewire) {
@@ -178,7 +187,7 @@ class ExpenseBudgetResource extends Resource
                                 'approved_by' => auth()->id(),
                             ]);
                         }
-                    })
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -186,14 +195,14 @@ class ExpenseBudgetResource extends Resource
                     ->color('warning')
                     ->label('Editar')
                     ->icon('heroicon-o-pencil')
-                    ->visible(fn($record) => $record->status === 'draft'),
+                    ->visible(fn ($record) => $record->status === 'draft'),
 
                 Tables\Actions\DeleteAction::make()
                     ->button()
                     ->color('danger')
                     ->label('Eliminar')
                     ->icon('heroicon-o-trash')
-                    ->visible(fn($record) => $record->status === 'draft')
+                    ->visible(fn ($record) => $record->status === 'draft'),
             ])
             ->content(function (HasTable $livewire) {
                 $filters = $livewire->tableFilters['expense_budget'] ?? [];
@@ -213,7 +222,7 @@ class ExpenseBudgetResource extends Resource
                 $version = ExpenseBudgetVersion::with(['expenseBudgets.costCenter', 'expenseBudgets.category'])
                     ->find($filters['version_id']);
 
-                if (!$version) {
+                if (! $version) {
                     return view('filament.tables.expense-budget-matrix-empty', [
                         'message' => 'No se encontró la versión seleccionada',
                     ]);
@@ -223,7 +232,10 @@ class ExpenseBudgetResource extends Resource
                     'costCenters' => CostCenter::with('categories')->get(),
                     'months' => self::$months,
                     'expenseBudgets' => $version->expenseBudgets
-                        ->groupBy(fn($budget) => $budget->cost_center_id . '-' . $budget->category_id),
+                        ->groupBy(function ($budget) {
+                            /** @var \App\Models\ExpenseBudget $budget */
+                            return $budget->cost_center_id.'-'.$budget->category_id;
+                        }),
                     'version' => $version,
                 ]);
             });

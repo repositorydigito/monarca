@@ -17,6 +17,7 @@ class CategoryResource extends Resource
     protected static ?string $navigationGroup = null;
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
+
     protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
@@ -78,8 +79,6 @@ class CategoryResource extends Resource
     {
         return false;
     }
-
-
 
     public static function getModelLabel(): string
     {

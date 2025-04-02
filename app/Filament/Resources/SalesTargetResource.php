@@ -3,33 +3,34 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SalesTargetResource\Pages;
-use App\Models\SalesTarget;
 use App\Models\BusinessLine;
 use App\Models\SalesTargetVersion;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Tables\Actions\Action;
-use Filament\Forms\Components\Placeholder;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\CheckboxList;
 
 class SalesTargetResource extends Resource
 {
     protected static ?string $model = SalesTargetVersion::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
     protected static ?string $modelLabel = 'Meta de Venta';
+
     protected static ?string $pluralModelLabel = 'Metas de Venta';
+
     protected static ?string $navigationGroup = 'Finanzas';
+
     protected static ?int $navigationSort = 1;
 
     public static array $months = [
@@ -44,7 +45,7 @@ class SalesTargetResource extends Resource
         'september' => 'Setiembre',
         'october' => 'Octubre',
         'november' => 'Noviembre',
-        'december' => 'Diciembre'
+        'december' => 'Diciembre',
     ];
 
     public static function form(Form $form): Form
@@ -52,7 +53,7 @@ class SalesTargetResource extends Resource
         $years = range(2024, date('Y') + 5);
 
         return $form
-            ->disabled(fn($record) => $record && $record->status === 'approved')
+            ->disabled(fn ($record) => $record && $record->status === 'approved')
             ->schema([
                 Select::make('year')
                     ->label('Año')
@@ -82,23 +83,20 @@ class SalesTargetResource extends Resource
                                             ->content('')
                                             ->extraAttributes(['class' => 'text-sm font-semibold']),
                                         ...collect(self::$months)->map(
-                                            fn($label) =>
-                                            Placeholder::make('')
+                                            fn ($label) => Placeholder::make('')
                                                 ->content($label)
                                                 ->extraAttributes(['class' => 'text-center font-medium'])
                                         )->toArray(),
                                     ]),
 
                                 ...collect(BusinessLine::all())->map(
-                                    fn($line) =>
-                                    Grid::make(13)
+                                    fn ($line) => Grid::make(13)
                                         ->schema([
                                             Placeholder::make('')
                                                 ->content($line->name)
                                                 ->extraAttributes(['class' => 'text-xs font-medium']),
                                             ...collect(self::$months)->map(
-                                                fn($label, $month) =>
-                                                TextInput::make("salesTargets.{$line->id}.{$month}_amount")
+                                                fn ($label, $month) => TextInput::make("salesTargets.{$line->id}.{$month}_amount")
                                                     ->label('')
                                                     ->numeric()
                                                     ->default(0)
@@ -108,12 +106,11 @@ class SalesTargetResource extends Resource
                                             )->toArray(),
                                         ])
                                         ->visible(
-                                            fn(callable $get): bool =>
-                                            in_array($line->id, $get('selected_lines') ?? [])
+                                            fn (callable $get): bool => in_array($line->id, $get('selected_lines') ?? [])
                                         )
-                                )->toArray()
-                            ])
-                    ])
+                                )->toArray(),
+                            ]),
+                    ]),
             ]);
     }
 
@@ -126,7 +123,7 @@ class SalesTargetResource extends Resource
                     ->form([
                         Select::make('year')
                             ->label('Seleccione año')
-                            ->options(fn() => SalesTargetVersion::distinct()->pluck('year', 'year')->toArray())
+                            ->options(fn () => SalesTargetVersion::distinct()->pluck('year', 'year')->toArray())
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                 $set('version_id', null);
@@ -141,24 +138,24 @@ class SalesTargetResource extends Resource
                                         ->pluck('version_number', 'id')
                                         ->toArray();
                                 }
+
                                 return ['' => 'Seleccione un año primero'];
                             }),
                     ])
                     ->query(function (Builder $query, array $data) {
-                        $year = (int) $data['year'] ?? null;
-                        $versionId = (int) $data['version_id'] ?? null;
+                        $year = (int) $data['year'];
+                        $versionId = (int) $data['version_id'];
 
-                        if (!empty($year)) {
+                        if (! empty($year)) {
                             $query->where('year', $year);
                         }
 
-                        if (!empty($versionId)) {
+                        if (! empty($versionId)) {
                             $query->where('id', $versionId);
                         }
                     }),
             ])
             ->headerActions([
-
 
                 Tables\Actions\Action::make('aprobar')
                     ->label('APROBAR')
@@ -169,7 +166,7 @@ class SalesTargetResource extends Resource
                         $year = $livewire->tableFilters['sales_target']['year'] ?? null;
                         $versionId = $livewire->tableFilters['sales_target']['version_id'] ?? null;
 
-                        if (!$year || !$versionId) {
+                        if (! $year || ! $versionId) {
                             return false;
                         }
 
@@ -183,7 +180,7 @@ class SalesTargetResource extends Resource
                         $year = $livewire->tableFilters['sales_target']['year'] ?? null;
                         $versionId = $livewire->tableFilters['sales_target']['version_id'] ?? null;
 
-                        if (!$year || !$versionId) {
+                        if (! $year || ! $versionId) {
                             return;
                         }
 
@@ -198,7 +195,7 @@ class SalesTargetResource extends Resource
                                 'approved_by' => auth()->id(),
                             ]);
                         }
-                    })
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -206,26 +203,26 @@ class SalesTargetResource extends Resource
                     ->color('warning')
                     ->label('Editar')
                     ->icon('heroicon-o-pencil')
-                    ->visible(fn($record) => $record->status === 'draft'),
+                    ->visible(fn ($record) => $record->status === 'draft'),
 
                 Tables\Actions\DeleteAction::make()
                     ->button()
                     ->color('danger')
                     ->label('Eliminar')
                     ->icon('heroicon-o-trash')
-                    ->visible(fn($record) => $record->status === 'draft')
+                    ->visible(fn ($record) => $record->status === 'draft'),
             ])
             ->content(function (HasTable $livewire) {
                 $year = $livewire->tableFilters['sales_target']['year'] ?? null;
                 $versionId = $livewire->tableFilters['sales_target']['version_id'] ?? null;
 
-                if (!$year) {
+                if (! $year) {
                     return view('filament.tables.sales-target-matrix-empty', [
                         'message' => 'Seleccione un año',
                     ]);
                 }
 
-                if (!$versionId) {
+                if (! $versionId) {
                     return view('filament.tables.sales-target-matrix-empty', [
                         'message' => 'Seleccione una versión',
                     ]);
@@ -236,7 +233,7 @@ class SalesTargetResource extends Resource
                     ->with(['salesTargets.businessLine'])
                     ->first();
 
-                if (!$version) {
+                if (! $version) {
                     return view('filament.tables.sales-target-matrix-empty', [
                         'message' => 'No se encontró la versión seleccionada',
                     ]);

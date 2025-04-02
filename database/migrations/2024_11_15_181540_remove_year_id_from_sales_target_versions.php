@@ -26,7 +26,7 @@ return new class extends Migration
     {
         Schema::table('sales_target_versions', function (Blueprint $table) {
             // Si necesitas recrear la columna en el rollback
-            if (!Schema::hasColumn('sales_target_versions', 'year_id')) {
+            if (! Schema::hasColumn('sales_target_versions', 'year_id')) {
                 $table->unsignedBigInteger('year_id')->after('id');
             }
         });

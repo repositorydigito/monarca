@@ -3,21 +3,19 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BusinessLineResource\Pages;
-use App\Filament\Resources\BusinessLineResource\RelationManagers;
 use App\Models\BusinessLine;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BusinessLineResource extends Resource
 {
     protected static ?string $model = BusinessLine::class;
 
     protected static ?string $navigationGroup = 'Proyectos';
+
     protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -31,7 +29,7 @@ class BusinessLineResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Textarea::make('description')
-                ->label('Descripcion')
+                    ->label('Descripcion')
                     ->columnSpanFull(),
             ]);
     }
@@ -83,11 +81,11 @@ class BusinessLineResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return 'Linea de Negocio';
+        return 'Proyecto';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Lineas de Negocio';
+        return 'Proyectos';
     }
 }

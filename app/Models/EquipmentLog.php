@@ -19,7 +19,8 @@ class EquipmentLog extends Model
         'delay_activity',
         'initial_mileage',
         'final_mileage',
-        'tons'
+        'tons',
+        'steel',
     ];
 
     public function project(): BelongsTo
@@ -27,19 +28,18 @@ class EquipmentLog extends Model
         return $this->belongsTo(Project::class);
     }
 
-    public function equipment():belongsTo
+    public function equipment(): belongsTo
     {
-    return $this->belongsTo(Equipment::class);
+        return $this->belongsTo(Equipment::class);
     }
 
+    // Accessor para calcular kilometraje total
+    public function getTotalMileageAttribute(): float
+    {
+        if ($this->final_mileage && $this->initial_mileage) {
+            return $this->final_mileage - $this->initial_mileage;
+        }
 
-     // Accessor para calcular kilometraje total
-     public function getTotalMileageAttribute(): float
-     {
-         if ($this->final_mileage && $this->initial_mileage) {
-             return $this->final_mileage - $this->initial_mileage;
-         }
-         return 0;
-     }
-
+        return 0;
+    }
 }

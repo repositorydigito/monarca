@@ -89,4 +89,6 @@ return [
         'enabled' => true,
     ],
 
+    'role_model' => \App\Models\Role::class,
+
 ];

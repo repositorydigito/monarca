@@ -6,19 +6,31 @@ use App\Filament\Resources\ExpenseBudgetResource;
 use App\Models\CostCenter;
 use Filament\Resources\Pages\CreateRecord;
 
+/**
+ * @property \App\Models\ExpenseBudget $record
+ */
 class CreateExpenseBudget extends CreateRecord
 {
     protected static string $resource = ExpenseBudgetResource::class;
 
     protected function afterCreate(): void
     {
+        /** @var \App\Models\ExpenseBudget $version */
         $version = $this->record;
         $selectedCenters = $this->data['selected_centers'] ?? [];
 
+        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\CostCenter> $costCenters */
         $costCenters = CostCenter::with('categories')->whereIn('id', $selectedCenters)->get();
 
         foreach ($costCenters as $center) {
-            foreach ($center->categories as $category) {
+            /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Category> $categories */
+            $categories = $center->categories;
+            foreach ($categories as $category) {
+                /** @var int $centerId */
+                $centerId = $center->id;
+
+                /** @var int $categoryId */
+                $categoryId = $category->id;
                 $monthlyAmounts = [
                     'january_amount' => $this->getNumericValue($this->data['expenseBudgets'][$center->id][$category->id]['january_amount']),
                     'february_amount' => $this->getNumericValue($this->data['expenseBudgets'][$center->id][$category->id]['february_amount']),
@@ -37,7 +49,7 @@ class CreateExpenseBudget extends CreateRecord
                 $version->expenseBudgets()->create(array_merge([
                     'cost_center_id' => $center->id,
                     'category_id' => $category->id,
-                    'created_by' => auth()->id()
+                    'created_by' => auth()->id(),
                 ], $monthlyAmounts));
             }
         }
@@ -45,11 +57,12 @@ class CreateExpenseBudget extends CreateRecord
 
     protected function getNumericValue($value): float
     {
-        if (empty($value) || !is_numeric($value)) {
+        if (empty($value) || ! is_numeric($value)) {
             return 0.00;
         }
 
         $cleanValue = str_replace([',', ' '], ['.', ''], $value);
+
         return round((float) $cleanValue, 2);
     }
 }

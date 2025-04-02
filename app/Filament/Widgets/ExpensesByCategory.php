@@ -3,23 +3,21 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Expense;
-use Filament\Widgets\ChartWidget;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
-
+use Filament\Widgets\ChartWidget;
 
 class ExpensesByCategory extends ChartWidget
 {
     use HasWidgetShield;
 
     protected static ?string $heading = 'Gastos por Categoría';
+
     protected static ?int $sort = 4;
 
     protected function getType(): string
     {
         return 'bar';
     }
-
-
 
     protected function getData(): array
     {

@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ExpenseBudgetVersion extends Model
 {
@@ -15,7 +15,7 @@ class ExpenseBudgetVersion extends Model
         'created_by',
         'approved_at',
         'approved_by',
-        'comments'
+        'comments',
     ];
 
     protected $casts = [
@@ -36,7 +36,6 @@ class ExpenseBudgetVersion extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
-
 
     protected static function boot()
     {

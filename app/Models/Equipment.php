@@ -8,31 +8,29 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Equipment extends Model
 {
-
     protected $table = 'equipments';
+
     protected $fillable = [
         'name',
         'vehicle_type',
         'entity_id',
         'driver',
+        'driver2',
         'license',
+        'license2',
         'plate_number1',
         'plate_number2',
         'brand',
-        'model'
+        'model',
     ];
 
-   
     public function entity(): BelongsTo
     {
         return $this->belongsTo(Entity::class);
     }
 
-
     public function equipmentLogs(): HasMany
     {
         return $this->hasMany(EquipmentLog::class);
     }
-
- 
 }

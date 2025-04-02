@@ -3,23 +3,20 @@
 namespace App\Filament\Resources\SalesTargetResource\Pages;
 
 use App\Filament\Resources\SalesTargetResource;
-use Filament\Actions;
+use App\Models\BusinessLine;
 use Filament\Resources\Pages\CreateRecord;
-use App\Models\SalesTargetVersion;
-use App\Models\businessLine;
-use App\Models\SalesTarget;
 
 class CreateSalesTarget extends CreateRecord
 {
     protected static string $resource = SalesTargetResource::class;
-    
+
     protected function afterCreate(): void
     {
         $version = $this->record;
         $selectedLines = $this->data['selected_lines'] ?? [];
-        
+
         $businessLines = BusinessLine::whereIn('id', $selectedLines)->get();
-        
+
         foreach ($businessLines as $line) {
             // Asegurar que todos los valores sean numéricos
             $monthlyAmounts = [
@@ -39,7 +36,7 @@ class CreateSalesTarget extends CreateRecord
 
             $version->salesTargets()->create(array_merge([
                 'business_line_id' => $line->id,
-                'created_by' => auth()->id()
+                'created_by' => auth()->id(),
             ], $monthlyAmounts));
         }
     }
@@ -50,13 +47,13 @@ class CreateSalesTarget extends CreateRecord
     protected function getNumericValue($value): float
     {
         // Si el valor está vacío o no es numérico, devolver 0
-        if (empty($value) || !is_numeric($value)) {
+        if (empty($value) || ! is_numeric($value)) {
             return 0.00;
         }
-        
+
         // Limpiar el valor y convertirlo a decimal
         $cleanValue = str_replace([',', ' '], ['.', ''], $value);
+
         return round((float) $cleanValue, 2);
     }
-
 }

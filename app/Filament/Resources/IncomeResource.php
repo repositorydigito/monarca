@@ -14,10 +14,13 @@ use Illuminate\Database\Eloquent\Builder;
 class IncomeResource extends Resource
 {
     protected static ?string $model = Income::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
 
     protected static ?string $navigationGroup = 'Ingresos';
+
     protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationLabel = 'Listado';
 
     public static function shouldRegisterNavigation(): bool
@@ -187,6 +190,7 @@ class IncomeResource extends Resource
                 } elseif ($segment === 'receivable') {
                     $query->where('status', 'Por Cobrar');
                 }
+
                 return $query;
             })
             ->columns([
@@ -242,8 +246,7 @@ class IncomeResource extends Resource
                     ->formatStateUsing(fn ($state) => $state)
                     ->colors([
                         'warning' => 'Por Revisar',
-                        'info' => 'Por Facturar',
-                        'info' => 'Por Cobrar',
+                        'info' => ['Por Facturar', 'Por Cobrar'],
                         'success' => 'Cobrado',
                         'danger' => 'Suspendido',
                         'gray' => 'Provisionado',
@@ -305,13 +308,13 @@ class IncomeResource extends Resource
             ])
             ->filtersLayout(Tables\Enums\FiltersLayout::AboveContent)
             ->actions([
-               Tables\Actions\EditAction::make(),
-           ])
+                Tables\Actions\EditAction::make(),
+            ])
             ->bulkActions([
-               Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-               ]),
-           ]);
+                ]),
+            ]);
     }
 
     public static function getRelations(): array

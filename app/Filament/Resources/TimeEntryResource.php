@@ -7,21 +7,24 @@ use App\Models\TimeEntry;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Support\Enums\FontWeight;
+use Filament\Tables;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TimeEntryResource extends Resource
 {
     protected static ?string $model = TimeEntry::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
+
     protected static ?string $navigationGroup = 'Gestión de Tiempo';
 
     protected static ?string $label = 'hoja de tiempo';
+
     protected static ?string $pluralLabel = 'hojas de tiempo';
+
     protected static ?string $navigationLabel = 'Ingreso de Horas';
 
     // Filtrar por usuario autenticado
@@ -90,7 +93,7 @@ class TimeEntryResource extends Resource
                                 'orderedList',
                             ])
                             ->columnSpanFull()
-                            ->helperText('Proporciona detalles sobre las actividades realizadas')
+                            ->helperText('Proporciona detalles sobre las actividades realizadas'),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),
@@ -129,7 +132,7 @@ class TimeEntryResource extends Resource
 
                 Tables\Columns\TextColumn::make('phase')
                     ->label('Fase')
-                    ->formatStateUsing(fn($state) => TimeEntry::PHASES[$state] ?? $state)
+                    ->formatStateUsing(fn ($state) => TimeEntry::PHASES[$state] ?? $state)
                     ->colors([
                         'primary' => 'inicio',
                         'warning' => 'planificacion',
@@ -153,7 +156,7 @@ class TimeEntryResource extends Resource
                     ->form([
                         Forms\Components\DatePicker::make('start')
                             ->label('Desde')
-                            ->default(fn() => now()->startOfMonth()),
+                            ->default(fn () => now()->startOfMonth()),
                         Forms\Components\DatePicker::make('end')
                             ->label('Hasta')
                             ->default(now()),
@@ -176,11 +179,11 @@ class TimeEntryResource extends Resource
                         return $query
                             ->when(
                                 $data['start'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
                             )
                             ->when(
                                 $data['end'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
                             );
                     }),
             ])

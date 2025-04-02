@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\SalesTargetResource\Pages;
 
 use App\Filament\Resources\SalesTargetResource;
-use Filament\Resources\Pages\EditRecord;
 use App\Models\SalesTarget;
+use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
 
 class EditSalesTarget extends EditRecord
@@ -13,6 +13,11 @@ class EditSalesTarget extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
+
+        if (! $this->record instanceof \App\Models\SalesTarget) {
+            throw new \RuntimeException('El registro no es una instancia válida de SalesTarget.');
+        }
+
         $salesTargets = SalesTarget::where('version_id', $this->record->id)
             ->get()
             ->groupBy('business_line_id');
@@ -21,9 +26,10 @@ class EditSalesTarget extends EditRecord
             $target = $targets->first();
             $amounts = [];
             foreach (SalesTargetResource::$months as $key => $_) {
-                $value = $target->{$key . '_amount'};
-                $amounts[$key . '_amount'] = $value ? floatval($value) : 0;
+                $value = $target->{$key.'_amount'};
+                $amounts[$key.'_amount'] = $value ? floatval($value) : 0;
             }
+
             return $amounts;
         })->toArray();
 
@@ -34,6 +40,11 @@ class EditSalesTarget extends EditRecord
 
     protected function afterSave(): void
     {
+
+        if (! $this->record instanceof \App\Models\SalesTarget) {
+            throw new \RuntimeException('El registro no es una instancia válida de SalesTarget.');
+        }
+
         $data = $this->data;
 
         try {

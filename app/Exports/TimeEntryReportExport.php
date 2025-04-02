@@ -2,19 +2,22 @@
 
 namespace App\Exports;
 
+use App\Models\TimeEntryReport;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Carbon\Carbon;
-use App\Models\TimeEntryReport;
-use Illuminate\Support\Facades\DB;
 
 class TimeEntryReportExport implements FromCollection, WithHeadings, WithStyles
 {
     protected $from;
+
     protected $until;
+
     protected $headers;
+
     protected $columnCount;
 
     public function __construct($from, $until)
@@ -28,9 +31,10 @@ class TimeEntryReportExport implements FromCollection, WithHeadings, WithStyles
     public function collection()
     {
         $dates = collect($this->from->copy()->daysUntil($this->until->copy()));
-        
+
         $dateColumns = $dates->map(function ($date) {
             $dateStr = $date->toDateString();
+
             return "SUM(CASE WHEN DATE(time_entries.date) = '{$dateStr}' THEN time_entries.hours ELSE 0 END) as day_{$date->format('Y_m_d')}";
         })->implode(', ');
 
@@ -56,14 +60,14 @@ class TimeEntryReportExport implements FromCollection, WithHeadings, WithStyles
     protected function getHeaders(): array
     {
         $headers = ['Recurso'];
-        
+
         $dates = collect($this->from->copy()->daysUntil($this->until->copy()));
         foreach ($dates as $date) {
             $headers[] = $date->format('d/m');
         }
-        
+
         $headers[] = 'Total';
-        
+
         return $headers;
     }
 
@@ -72,7 +76,7 @@ class TimeEntryReportExport implements FromCollection, WithHeadings, WithStyles
         // Obtener la letra de la última columna
         $lastColumnIndex = $this->columnCount - 1;
         $lastColumnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($lastColumnIndex + 1);
-        
+
         // Estilo para el encabezado
         $sheet->getStyle("A1:{$lastColumnLetter}1")->applyFromArray([
             'font' => [
@@ -87,7 +91,7 @@ class TimeEntryReportExport implements FromCollection, WithHeadings, WithStyles
 
         // Ajustar el ancho de las columnas
         $sheet->getColumnDimension('A')->setWidth(30);
-        
+
         // Ajustar el ancho de las columnas numéricas
         for ($i = 1; $i < $this->columnCount; $i++) {
             $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i + 1);
@@ -104,4 +108,4 @@ class TimeEntryReportExport implements FromCollection, WithHeadings, WithStyles
             ]);
         }
     }
-} 
+}

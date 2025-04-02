@@ -17,12 +17,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Filament\Widgets\CalendarWidget;
 use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
-use App\Filament\Widgets\IncomeExpensesOverview;
-use App\Filament\Widgets\ExpensesByCostCenter;
-use App\Filament\Widgets\ExpensesByCategory;
-
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -33,10 +28,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Strategio')
-            ->brandLogo(asset('images/strategio.png'))
-            ->darkModeBrandLogo(asset('images/strategio.png')) // Logo para modo oscuro
-            ->darkMode(false)
+            ->brandName('Monarca')
+            ->brandLogo(asset('images/monarcaLight.png'))
+            ->darkModeBrandLogo(asset('images/monarcaDark.png')) // Logo para modo oscuro
+            ->darkMode(true)
             ->colors([
                 'primary' => Color::Blue,
             ])
@@ -50,7 +45,7 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 \App\Filament\Widgets\IncomeExpensesOverview::class,
                 \App\Filament\Widgets\ExpensesByCostCenter::class,
-                \App\Filament\Widgets\ExpensesByCategory::class
+                \App\Filament\Widgets\ExpensesByCategory::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -75,7 +70,7 @@ class AdminPanelProvider extends PanelProvider
                     ->setNavigationGroup('Configuracion')
                     ->shouldShowDeleteAccountForm(false)
                     ->shouldShowEditProfileForm(false)
-                    ->setIcon('heroicon-o-user')
+                    ->setIcon('heroicon-o-user'),
             ])->plugin(\TomatoPHP\FilamentUsers\FilamentUsersPlugin::make());
     }
 }

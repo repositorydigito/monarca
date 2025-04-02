@@ -2,12 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\User;
-use App\Models\Project;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TimeEntryReport extends Model
 {
@@ -16,19 +12,19 @@ class TimeEntryReport extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
         'user_id',
         'project_id',
         'date',
         'phase',
-        'hours'
+        'hours',
     ];
 
     protected $casts = [
         'date' => 'date',
-        'hours' => 'decimal:2'
+        'hours' => 'decimal:2',
     ];
 
     public const PHASES = [
@@ -36,9 +32,8 @@ class TimeEntryReport extends Model
         'planificacion' => 'Planificación',
         'ejecucion' => 'Ejecución',
         'control' => 'Control',
-        'cierre' => 'Cierre'
+        'cierre' => 'Cierre',
     ];
-
 
     public function user(): BelongsTo
     {
@@ -49,6 +44,4 @@ class TimeEntryReport extends Model
     {
         return $this->belongsTo(Project::class);
     }
-
-    
 }

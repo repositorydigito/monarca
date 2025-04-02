@@ -11,13 +11,47 @@
 
                     <h2 class="text-xl font-medium flex items-center">
                         <x-heroicon-o-calendar class="w-5 h-5 mr-2 text-primary-500" />
-                        {{ Carbon\Carbon::parse($currentDate)->format('F Y') }}
+                        {{ Carbon\Carbon::parse($currentDate)->locale('es')->isoFormat('MMMM YYYY') }}
                     </h2>
 
                     <button wire:click="nextMonth" class="filament-button filament-button-size-md">
                         <x-heroicon-o-chevron-right class="w-5 h-5" />
                     </button>
                 </div>
+                @php
+                    $user = auth()->user();
+                    $canViewAllUsers = $user->roles->contains(function ($role) {
+                        \Illuminate\Support\Facades\Log::info('Verificando rol:', [
+                            'role_id' => $role->id,
+                            'role_name' => $role->name,
+                            'can_view_all_users' => $role->can_view_all_users,
+                            'can_view_all_users_type' => gettype($role->can_view_all_users)
+                        ]);
+                        return $role->can_view_all_users == true;
+                    });
+                    \Illuminate\Support\Facades\Log::info('Estado del permiso:', [
+                        'user_id' => $user->id,
+                        'user_name' => $user->name,
+                        'canViewAllUsers' => $canViewAllUsers,
+                        'roles' => $user->roles->pluck('name', 'id')
+                    ]);
+                @endphp
+                @if($canViewAllUsers)
+                <div class="flex items-center space-x-4">
+                    <label for="user-select" class="mr-4 text-sm font-medium text-gray-700 dark:text-gray-300">Seleccionar Usuario:</label>
+                    <select 
+                        id="user-select" 
+                        wire:change="updateSelectedUser($event.target.value)"
+                        class="filament-form-input bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 min-w-[200px]"
+                    >
+                        @foreach ($users as $id => $name)
+                            <option value="{{ $id }}" {{ $selectedUserId == $id ? 'selected' : '' }}>
+                                {{ $name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
             </div>
 
             <!-- Timesheet Table -->
@@ -32,7 +66,7 @@
                                 class="sticky left-0 z-20 sticky-left-bg px-4 py-2"
                                 style="min-width: 200px; text-align: left;"
                             >
-                                PROYECTO
+                                LOCACIONES
                             </th>
                             <!-- Encabezados de días -->
                             @foreach (range(1, Carbon\Carbon::parse($currentDate)->daysInMonth) as $day)

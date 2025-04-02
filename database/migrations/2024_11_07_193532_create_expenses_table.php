@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      *
@@ -22,7 +23,7 @@ return new class extends Migration {
                 'Boleta de pago',
                 'Nota de Pago',
                 'Sin Documento',
-                'Ticket'
+                'Ticket',
             ]);
             $table->string('document_number', 50)->nullable();
             $table->date('document_date')->nullable();
@@ -39,7 +40,7 @@ return new class extends Migration {
                 'por pagar',
                 'por pagar detraccion',
                 'por reembolsar',
-                'pagado'
+                'pagado',
             ]);
             $table->enum('payment_status', ['pendiente', 'pagado', 'anulado'])->nullable();
             $table->unsignedBigInteger('project_id')->nullable();
@@ -73,4 +74,3 @@ return new class extends Migration {
         Schema::dropIfExists('expenses');
     }
 };
-

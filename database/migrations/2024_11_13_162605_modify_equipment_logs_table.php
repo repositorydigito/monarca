@@ -9,7 +9,7 @@ class ModifyEquipmentLogsTable extends Migration
     public function up()
     {
         Schema::table('equipment_logs', function (Blueprint $table) {
-            if (!Schema::hasColumn('equipment_logs', 'equipment_id')) {
+            if (! Schema::hasColumn('equipment_logs', 'equipment_id')) {
                 $table->foreignId('equipment_id')
                     ->after('project_id')
                     ->references('id')->on('equipments') // Cambiado a 'equipments'
@@ -27,7 +27,7 @@ class ModifyEquipmentLogsTable extends Migration
     public function down()
     {
         Schema::table('equipment_logs', function (Blueprint $table) {
-            if (!Schema::hasColumn('equipment_logs', 'equipment')) {
+            if (! Schema::hasColumn('equipment_logs', 'equipment')) {
                 $table->string('equipment')->nullable()->comment('Equipo')->after('engine_hours');
             }
 

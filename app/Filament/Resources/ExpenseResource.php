@@ -6,9 +6,9 @@ use App\Filament\Resources\ExpenseResource\Pages;
 use App\Models\Expense;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Forms\Get;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -19,8 +19,11 @@ class ExpenseResource extends Resource
     protected static ?string $model = Expense::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
+
     protected static ?string $navigationGroup = 'Gastos';
+
     protected static ?int $navigationSort = 2;
+
     protected static ?string $navigationLabel = 'Listado';
 
     public static function shouldRegisterNavigation(): bool
@@ -99,10 +102,10 @@ class ExpenseResource extends Resource
                         Forms\Components\DatePicker::make('document_date')
                             ->label('Fecha de Documento'),
 
-                            Forms\Components\Select::make('cost_center_id')
+                        Forms\Components\Select::make('cost_center_id')
                             ->label('Centro de Costos')
                             ->relationship(
-                                'costcenter', 
+                                'costcenter',
                                 'center_name',
                                 fn (Builder $query) => $query->orderBy('center_name')
                             )
@@ -111,9 +114,7 @@ class ExpenseResource extends Resource
                             ->live()
                             ->afterStateUpdated(fn (Forms\Set $set) => $set('category_id', null))
                             ->required()
-                            ->helperText('Seleccione un centro de costos para ver las categorías disponibles')
-                            
-                            ,
+                            ->helperText('Seleccione un centro de costos para ver las categorías disponibles'),
 
                         Forms\Components\Select::make('project_id')
                             ->label('Proyecto')
@@ -122,15 +123,15 @@ class ExpenseResource extends Resource
                             ->preload()
                             ->nullable(),
 
-                            Forms\Components\Select::make('category_id')
+                        Forms\Components\Select::make('category_id')
                             ->label('Categoría')
                             ->options(function (Get $get) {
                                 $costCenterId = $get('cost_center_id');
-                                
-                                if (!$costCenterId) {
+
+                                if (! $costCenterId) {
                                     return [];
                                 }
-                                
+
                                 return \App\Models\Category::query()
                                     ->where('cost_center_id', $costCenterId)
                                     ->orderBy('category_name')
@@ -140,11 +141,12 @@ class ExpenseResource extends Resource
                             ->searchable()
                             ->preload()
                             ->required()
-                            ->disabled(fn (Get $get): bool => !$get('cost_center_id'))
+                            ->disabled(fn (Get $get): bool => ! $get('cost_center_id'))
                             ->helperText(function (Get $get) {
-                                if (!$get('cost_center_id')) {
+                                if (! $get('cost_center_id')) {
                                     return 'Primero seleccione un centro de costos';
                                 }
+
                                 return 'Seleccione una categoría del centro de costos';
                             })
                             ->live(),
@@ -263,6 +265,7 @@ class ExpenseResource extends Resource
                 } elseif ($segment === 'receivable') {
                     $query->where('status', 'por reembolsar');
                 }
+
                 return $query;
             })
             ->columns([
@@ -390,13 +393,13 @@ class ExpenseResource extends Resource
             ])
             ->filtersLayout(Tables\Enums\FiltersLayout::AboveContent)
             ->actions([
-            Tables\Actions\EditAction::make(),
-        ])
+                Tables\Actions\EditAction::make(),
+            ])
             ->bulkActions([
-            Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-            ]),
-        ]);
+                ]),
+            ]);
     }
 
     public static function getRelations(): array

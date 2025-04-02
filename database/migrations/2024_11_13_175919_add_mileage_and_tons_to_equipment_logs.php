@@ -13,12 +13,12 @@ return new class extends Migration
                 ->nullable()
                 ->after('delay_activity')
                 ->comment('Kilometraje Inicial');
-                
+
             $table->decimal('final_mileage', 10, 2)
                 ->nullable()
                 ->after('initial_mileage')
                 ->comment('Kilometraje Final');
-                
+
             $table->decimal('tons', 8, 2)
                 ->nullable()
                 ->after('final_mileage')

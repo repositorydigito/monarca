@@ -15,15 +15,17 @@ class ProjectResource extends Resource
     protected static ?string $model = Project::class;
 
     protected static ?string $navigationGroup = 'Proyectos';
+
     protected static ?int $navigationSort = 3;
+
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Detalles del Proyecto')
-                    ->description('Información básica del proyecto')
+                Forms\Components\Section::make('Detalles de la Locación')
+                    ->description('Información básica de la locación')
                     ->collapsible()
                     ->schema([
                         Forms\Components\Grid::make(2)
@@ -32,15 +34,15 @@ class ProjectResource extends Resource
                                     ->label('Nombre')
                                     ->required()
                                     ->maxLength(255)
-                                    ->placeholder('Ingrese el nombre del proyecto')
+                                    ->placeholder('Ingrese el nombre de la locación')
                                     ->columnSpanFull(),
 
                                 Forms\Components\TextInput::make('code')
-                                    ->label('Código Proyecto')
+                                    ->label('Código Locación')
                                     ->required()
                                     ->maxLength(50)
                                     ->unique(ignoreRecord: true)
-                                    ->placeholder('Ej: PROJ-001'),
+                                    ->placeholder('Ej: LOC-001'),
 
                                 Forms\Components\Select::make('entity_id')
                                     ->label('Entidad')
@@ -49,7 +51,7 @@ class ProjectResource extends Resource
                                     ->searchable()
                                     ->preload(),
                                 Forms\Components\Select::make('business_line_id')
-                                    ->label('Linea de Negocio')
+                                    ->label('Proyecto')
                                     ->relationship('businessLine', 'name')
                                     ->searchable()
                                     ->preload()
@@ -61,12 +63,12 @@ class ProjectResource extends Resource
                                         Forms\Components\Textarea::make('description')
                                             ->label('Descripcion')
                                             ->maxLength(65535),
-                                    ])
+                                    ]),
                             ]),
                     ]),
 
-                Forms\Components\Section::make('Fechas del Proyecto')
-                    ->description('Establezca el período del proyecto')
+                Forms\Components\Section::make('Fechas de la Locación')
+                    ->description('Establezca el período de la locación')
                     ->collapsible()
                     ->schema([
                         Forms\Components\Grid::make(2)
@@ -88,8 +90,8 @@ class ProjectResource extends Resource
                             ]),
                     ]),
 
-                Forms\Components\Section::make('Descripción del Proyecto')
-                    ->description('Detalle la información del proyecto')
+                Forms\Components\Section::make('Descripción de la Locación')
+                    ->description('Detalle la información de la locación')
                     ->collapsible()
                     ->schema([
                         Forms\Components\RichEditor::make('description')
@@ -116,8 +118,8 @@ class ProjectResource extends Resource
                     ->sortable() // Ordenamiento por Nombre
                     ->searchable(),
                 Tables\Columns\TextColumn::make('code')
-                    ->label('Código Proyecto')
-                    ->sortable() // Ordenamiento por Código de Proyecto
+                    ->label('Código Locación')
+                    ->sortable() // Ordenamiento por Código de Locación
                     ->searchable(),
                 Tables\Columns\TextColumn::make('entity.business_name')
                     ->label('Entidad')
@@ -159,11 +161,11 @@ class ProjectResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return 'Proyecto';
+        return 'Locación';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Proyectos';
+        return 'Locaciones';
     }
 }

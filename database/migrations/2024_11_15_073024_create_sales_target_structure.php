@@ -28,7 +28,7 @@ return new class extends Migration
             $table->foreignId('approved_by')->nullable()->constrained('users');
             $table->text('comments')->nullable();
             $table->timestamps();
-            
+
             $table->unique(['year_id', 'version_number']);
         });
 

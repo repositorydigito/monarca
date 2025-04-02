@@ -4,7 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\EquipmentLogResource\Pages;
 use App\Models\EquipmentLog;
-use App\Models\Equipment;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -17,7 +16,9 @@ class EquipmentLogResource extends Resource
     protected static ?string $model = EquipmentLog::class;
 
     protected static ?string $navigationGroup = 'Recursos';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
     protected static ?int $navigationSort = 4;
 
     protected static ?string $navigationLabel = 'Recursos';
@@ -33,7 +34,7 @@ class EquipmentLogResource extends Resource
                     ->columns(2)
                     ->schema([
                         Forms\Components\Select::make('project_id')
-                            ->label('Proyecto')
+                            ->label('Locación')
                             ->relationship('project', 'name')
                             ->required()
                             ->searchable()
@@ -153,19 +154,26 @@ class EquipmentLogResource extends Resource
                     ]),
 
                 // Sección de consumo
-                Forms\Components\Section::make('Consumo de Combustible')
-                    ->description('Registro de consumo de diesel')
+                Forms\Components\Section::make('Consumibles')
+                    ->description('Registro de combustible y acero')
                     ->icon('heroicon-o-beaker')
                     ->columns(1)
                     ->collapsed()
                     ->schema([
                         Forms\Components\TextInput::make('diesel_gal')
-                            ->label('Diesel en Galones')
+                            ->label('Combustible en Galones')
                             ->numeric()
                             ->inputMode('decimal')
                             ->step('0.01')
                             ->minValue(0)
                             ->suffixIcon('heroicon-m-beaker'),
+                        Forms\Components\TextInput::make('steel')
+                            ->label('Acero en Unidades')
+                            ->numeric()
+                            ->inputMode('decimal')
+                            ->step('0.01')
+                            ->minValue(0)
+                            ->suffixIcon('heroicon-m-square-3-stack-3d'),
                     ]),
             ]);
     }
@@ -179,6 +187,7 @@ class EquipmentLogResource extends Resource
                 return 0;
             }
         }
+
         return 0;
     }
 
@@ -187,7 +196,7 @@ class EquipmentLogResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('project.name')
-                    ->label('Proyecto')
+                    ->label('Locación')
                     ->sortable()
                     ->searchable()
                     ->toggleable(),
@@ -278,6 +287,7 @@ class EquipmentLogResource extends Resource
                         if ($record->final_mileage && $record->initial_mileage) {
                             return number_format($record->final_mileage - $record->initial_mileage, 2);
                         }
+
                         return 0;
                     })
                     ->sortable()
@@ -297,12 +307,11 @@ class EquipmentLogResource extends Resource
                     ->label('Actividad de Demora')
                     ->toggleable()
                     ->colors([
-                        'warning' => 'CALENTAMIENTO',
+                        'warning' => ['CALENTAMIENTO', 'HORAS_MOTOR_MANTENIMIENTO_NO_PROGRAMADO'],
                         'danger' => 'TRASLADO_EQUIPO',
                         'success' => 'MANTENIMIENTO_PREVIO',
                         'primary' => 'MANTENIMIENTO_PROGRAMADO',
                         'info' => 'HORAS_MOTOR_MANTENIMIENTO',
-                        'warning' => 'HORAS_MOTOR_MANTENIMIENTO_NO_PROGRAMADO',
                     ])
                     ->icons([
                         'heroicon-m-arrow-path' => 'CALENTAMIENTO',
@@ -316,7 +325,16 @@ class EquipmentLogResource extends Resource
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('diesel_gal')
-                    ->label('Diesel en Galones')
+                    ->label('Combustible en Galones')
+                    ->numeric(
+                        decimalPlaces: 2,
+                        decimalSeparator: '.',
+                        thousandsSeparator: ','
+                    )
+                    ->sortable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('steel')
+                    ->label('Acero en Unidades')
                     ->numeric(
                         decimalPlaces: 2,
                         decimalSeparator: '.',
@@ -326,7 +344,7 @@ class EquipmentLogResource extends Resource
                     ->toggleable(),
             ])
             ->toggleColumnsTriggerAction(
-                fn(Action $action) => $action
+                fn (Action $action) => $action
                     ->button()
                     ->label('Mostrar/Ocultar Columnas')
             )
@@ -335,7 +353,7 @@ class EquipmentLogResource extends Resource
                 Tables\Actions\EditAction::make()
                     ->icon('heroicon-o-pencil')
                     ->label('Editar')
-                    ->color('primary')
+                    ->color('primary'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -370,7 +388,7 @@ class EquipmentLogResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return static::$navigationLabel . ' (' . static::getModel()::count() . ')';
+        return static::$navigationLabel.' ('.static::getModel()::count().')';
     }
 
     public static function getNavigationBadge(): ?string

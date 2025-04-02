@@ -22,7 +22,7 @@ class SalesTarget extends Model
         'october_amount',
         'november_amount',
         'december_amount',
-        'created_by'
+        'created_by',
     ];
 
     protected $casts = [
@@ -54,6 +54,4 @@ class SalesTarget extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-
-
 }

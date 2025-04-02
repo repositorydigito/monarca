@@ -3,14 +3,17 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Expense;
-use Filament\Widgets\ChartWidget;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
+use Filament\Widgets\ChartWidget;
 
 class ExpensesByCostCenter extends ChartWidget
 {
     use HasWidgetShield;
+
     protected static ?string $heading = 'Gastos por Centro de Costo';
+
     protected static ?int $sort = 3;
+
     protected array|string|int $columnSpan = 1;
 
     protected function getType(): string

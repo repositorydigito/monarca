@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\SalesTargetResource\Pages;
 
 use App\Filament\Resources\SalesTargetResource;
-use Filament\Resources\Pages\ViewRecord;
-use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Pages\ViewRecord;
 
 class ViewSalesTarget extends ViewRecord
 {
@@ -28,16 +28,17 @@ class ViewSalesTarget extends ViewRecord
                             ->color(fn (string $state): string => match ($state) {
                                 'draft' => 'gray',
                                 'approved' => 'success',
+                                default => 'warning',
                             }),
                     ])
                     ->columns(3),
-                    
+
                 Section::make('Detalle de Montos')
                     ->view('filament.tables.sales-target-matrix', [
                         'businessLines' => \App\Models\BusinessLine::all(),
                         'months' => SalesTargetResource::$months,
-                        'salesTargets' => $this->record->salesTargets->groupBy('business_line_id')
-                    ])
+                        'salesTargets' => $this->record->salesTargets->groupBy('business_line_id'),
+                    ]),
             ]);
     }
 }

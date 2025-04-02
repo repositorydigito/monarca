@@ -2,20 +2,22 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Income;
 use App\Models\Expense;
-use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Carbon;
+use App\Models\Income;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
+use Filament\Widgets\ChartWidget;
 
 class IncomeExpensesOverview extends ChartWidget
 {
-
     use HasWidgetShield;
+
     protected static ?string $heading = 'Ingresos vs Gastos';
+
     protected static ?int $sort = 2;
+
     protected static ?string $maxHeight = '300px';
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
 
     public ?string $filter = '';
 
@@ -27,10 +29,11 @@ class IncomeExpensesOverview extends ChartWidget
     protected function getFilters(): ?array
     {
         $currentYear = date('Y');
+
         return [
-            $currentYear - 1 => (string)($currentYear - 1),
-            $currentYear => (string)$currentYear,
-            $currentYear + 1 => (string)($currentYear + 1),
+            $currentYear - 1 => (string) ($currentYear - 1),
+            $currentYear => (string) $currentYear,
+            $currentYear + 1 => (string) ($currentYear + 1),
         ];
     }
 
@@ -74,8 +77,8 @@ class IncomeExpensesOverview extends ChartWidget
 
         return [
             'labels' => $labels,
-            'incomes' => array_map(fn($month) => round($incomes[$month] ?? 0, 2), range(1, 12)),
-            'expenses' => array_map(fn($month) => round($expenses[$month] ?? 0, 2), range(1, 12)),
+            'incomes' => array_map(fn ($month) => round($incomes[$month] ?? 0, 2), range(1, 12)),
+            'expenses' => array_map(fn ($month) => round($expenses[$month] ?? 0, 2), range(1, 12)),
         ];
     }
 }

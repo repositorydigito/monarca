@@ -15,13 +15,15 @@ class EquipmentResource extends Resource
     protected static ?string $model = Equipment::class;
 
     protected static ?string $navigationGroup = 'Recursos';
+
     protected static ?string $navigationIcon = 'heroicon-o-truck';
+
     protected static ?int $navigationSort = 4;
 
     protected static ?string $navigationLabel = 'Equipos';
-    
+
     protected static ?string $modelLabel = 'Equipo';
-    
+
     protected static ?string $pluralModelLabel = 'Equipos';
 
     public static function form(Form $form): Form
@@ -36,8 +38,7 @@ class EquipmentResource extends Resource
                             ->label('Entidad')
                             ->placeholder('Seleccione una entidad')
                             ->searchable()
-                            ->preload()
-                            ,
+                            ->preload(),
 
                         Forms\Components\TextInput::make('name')
                             ->required()
@@ -74,16 +75,24 @@ class EquipmentResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('driver')
                             ->required()
-                            ->label('Conductor')
+                            ->label('Primer conductor')
                             ->placeholder('Ingrese el nombre del conductor')
                             ->maxLength(255),
-
+                        Forms\Components\TextInput::make('driver2')
+                            ->required()
+                            ->label('Segundo Conductor')
+                            ->placeholder('Ingrese el nombre del conductor')
+                            ->maxLength(255),
                         Forms\Components\TextInput::make('license')
                             ->required()
-                            ->label('Licencia')
+                            ->label('Licencia del primer conductor')
                             ->placeholder('Ingrese el número de licencia')
                             ->maxLength(50),
-
+                        Forms\Components\TextInput::make('license2')
+                            ->required()
+                            ->label('Licencia del segundo conductor')
+                            ->placeholder('Ingrese el número de licencia')
+                            ->maxLength(50),
                         Forms\Components\TextInput::make('plate_number1')
                             ->required()
                             ->label('Placa 1')
@@ -94,7 +103,7 @@ class EquipmentResource extends Resource
                             ->label('Placa 2')
                             ->placeholder('Ingrese la placa 2 (opcional)')
                             ->maxLength(20),
-                    ])->columns(2)
+                    ])->columns(2),
             ]);
     }
 

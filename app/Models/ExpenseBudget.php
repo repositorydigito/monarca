@@ -11,6 +11,7 @@ class ExpenseBudget extends Model
         'version_id',
         'cost_center_id',
         'category_id',
+        'category_name',
         'january_amount',
         'february_amount',
         'march_amount',
@@ -23,7 +24,7 @@ class ExpenseBudget extends Model
         'october_amount',
         'november_amount',
         'december_amount',
-        'created_by'
+        'created_by',
     ];
 
     protected $casts = [
@@ -38,7 +39,7 @@ class ExpenseBudget extends Model
         'september_amount' => 'decimal:2',
         'october_amount' => 'decimal:2',
         'november_amount' => 'decimal:2',
-        'december_amount' => 'decimal:2'
+        'december_amount' => 'decimal:2',
     ];
 
     public function version(): BelongsTo
